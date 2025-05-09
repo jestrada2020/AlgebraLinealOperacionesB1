@@ -1,97 +1,216 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
+  <html lang="es">
+    <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caja de Herramientas Matemáticas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; }
-        #sidebar { width: 250px; background-color: #f0f0f0; padding: 20px; height: 100vh; }
-        #content { flex-grow: 1; padding: 20px; }
-        .tool-container { background-color: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 20px; margin-top: 20px; }
-        .matrix-input input { width: 80px; margin: 2px; }
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Caja de Herramientas Matemáticas</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+            <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; display: flex; background-color: #f8f9fa; }
+                #sidebar { 
+                width: 280px; 
+              background-color: #343a40; /* Darker sidebar */
+                color: white;
+              padding: 20px; 
+              height: 100vh; 
+              position: fixed;
+              left: 0;
+              top: 0;
+              overflow-y: auto;
+              box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            }
+          #sidebar h2 {
+          font-size: 1.5rem;
+          margin-bottom: 1.5rem;
+          border-bottom: 1px solid #495057;
+          padding-bottom: 0.75rem;
+          }
+#sidebar ul { list-style: none; padding: 0; }
+#sidebar li { margin-bottom: 0.5rem; }
+#sidebar button {
+width: 100%;
+padding: 0.85rem 1rem; /* Increased padding */
+  border: none;
+border-radius: 0.375rem; /* Bootstrap's default rounded corners */
+            background: #495057; /* Slightly lighter than sidebar bg */
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            font-weight: 500;
+            text-align: left; /* Align text to the left */
+        }
+        #sidebar button:hover, #sidebar button.active {
+            background: #007bff; /* Bootstrap primary blue */
+            transform: translateX(5px);
+        }
+
+        #content { 
+            margin-left: 280px; /* Same as sidebar width */
+            flex-grow: 1; 
+            padding: 30px;  /* Increased padding */
+            overflow-y: auto; /* Allow content to scroll if needed */
+            height: 100vh;
+        }
+        .tool-container { 
+            background-color: #fff; 
+            border: 1px solid #dee2e6; 
+            border-radius: 0.375rem; 
+            padding: 30px; /* Increased padding */
+            margin-top: 0; /* Removed top margin as content has padding */
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+        }
+        
+        /* Common input styles */
+        .matrix-input input, .number-input, .operation-selector { 
+            width: 100%; 
+            padding: 0.5rem; 
+            border: 1px solid #ced4da; 
+            border-radius: 0.25rem; 
+            text-align: center; 
+            font-size: 1rem;
+            box-sizing: border-box; /* Important for width 100% */
+        }
+        .matrix-input input { width: 80px; margin: 2px; } /* Specific to Gauss-Jordan if needed */
+
         .gj-history { max-height: 200px; overflow-y: auto; }
         .gj-card { margin-bottom: 1rem; }
         .gj-matrix { font-size: 0.9em; white-space: pre-wrap; }
-        .btn-primary { background-color: #79aec8; border-color: #79aec8; }
-        .btn-primary:hover { background-color: #5a9bc2; }
+        
+        .btn-primary { background-color: #007bff; border-color: #007bff; }
+        .btn-primary:hover { background-color: #0056b3; border-color: #0056b3; }
+        .btn-secondary { background-color: #6c757d; border-color: #6c757d; }
+        .btn-secondary:hover { background-color: #545b62; border-color: #545b62; }
+        .btn-warning { background-color: #ffc107; border-color: #ffc107; color: #212529; }
+        .btn-warning:hover { background-color: #e0a800; border-color: #d39e00; }
+        .btn-success { background-color: #28a745; border-color: #28a745; }
+        .btn-danger { background-color: #dc3545; border-color: #dc3545; }
 
-        /* Estilos para la herramienta de determinantes */
+
+        /* Estilos específicos para la herramienta de determinantes */
         :root {
-            --primary-color: #3b82f6;
-            --secondary-color: #103db9;
-            --warning-color: #f59e0b;
-            --border-color: #e5e7eb;
-            --background-color: #f3f4f6;
+            --primary-color-det: #007bff;      /* Bootstrap primary */
+            --secondary-color-det: #6c757d;   /* Bootstrap secondary */
+            --warning-color-det: #ffc107;     /* Bootstrap warning */
+            --danger-color-det: #dc3545;      /* Bootstrap danger */
+            --border-color-det: #dee2e6;      /* Bootstrap border */
+            --background-light-det: #f8f9fa;  /* Bootstrap light background */
         }
 
-        .container { max-width: 1200px; margin: 0 auto; }
-        .grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 20px; margin-top: 20px; }
-        .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-        .title { font-size: 1.8rem; font-weight: bold; text-align: center; margin-bottom: 2rem; color: #1f2937; }
-        .subtitle { font-size: 1.25rem; font-weight: bold; margin: 1rem 0; color: #374151; }
-        .matrix-grid { display: grid; gap: 0.5rem; margin: 1rem 0; }
-        .matrix-row { display: grid; grid-template-columns: repeat(var(--matrix-size), 1fr); gap: 0.5rem; }
-        .matrix-cell { position: relative; min-width: 80px; }
-        .number-input { width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; text-align: center; font-size: 1rem; }
-        .button { display: inline-block; padding: 0.75rem 1rem; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; transition: background-color 0.2s; text-align: center; width: 100%; margin: 0.5rem 0; color: white; }
-        .button-primary { background-color: var(--primary-color); }
-        .button-primary:hover { background-color: #2563eb; }
-        .button-secondary { background-color: var(--secondary-color); }
-        .button-secondary:hover { background-color: #364483; }
-        .button-warning { background-color: var(--warning-color); }
-        .button-warning:hover { background-color: #d97706; }
-        .process-section { margin-top: 20px; padding: 15px; background-color: #f8fafc; border-radius: 8px; border: 1px solid var(--border-color); }
-        .latex-process { margin: 10px 0; padding: 15px; background-color: white; border-radius: 4px; min-height: 200px; overflow-x: auto; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-        .operations-box { padding: 15px; background-color: #f8fafc; border-radius: 8px; margin: 1rem 0; border: 1px solid var(--border-color); }
-        .operation-selector { width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem; }
-        .operation-inputs { margin-bottom: 1rem; }
-        .info-section { margin-top: 1rem; padding: 1rem; background-color: #f0f7ff; border-radius: 4px; border-left: 4px solid var(--primary-color); }
-        .properties-section { margin-top: 1rem; padding: 1rem; background-color: #f0f7ff; border-radius: 4px; }
-        .property-item { margin-bottom: 0.5rem; padding: 0.5rem; border-left: 3px solid var(--primary-color); }
-        .button:disabled { background-color: #ccc; cursor: not-allowed; }
-        #sidebar button {
-            width: 100%;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 8px;
-            background: var(--secondary-color);
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
+        .determinant-tool .main-title { font-size: 1.8rem; font-weight: bold; text-align: center; margin-bottom: 2rem; color: #343a40; }
+        .determinant-tool .subtitle { font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 1rem 0; color: #495057; border-bottom: 1px solid var(--border-color-det); padding-bottom: 0.5rem;}
+        
+        .determinant-tool .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
         }
-        #sidebar button:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
+
+        .determinant-tool .card { 
+            background: white; 
+            border-radius: 0.375rem; 
+            padding: 20px; 
+            border: 1px solid var(--border-color-det);
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+        }
+
+        .matrix-grid-det { display: grid; gap: 0.5rem; margin: 1rem 0; }
+        .matrix-row-det { display: flex; gap: 0.5rem; justify-content: center; }
+        .matrix-cell-det { position: relative; min-width: 60px; max-width: 70px; } /* Adjusted width */
+        
+        .determinant-tool .button { 
+            display: inline-block; padding: 0.65rem 1rem; border: none; border-radius: 0.25rem; 
+            font-size: 0.95rem; cursor: pointer; transition: background-color 0.2s; 
+            text-align: center; width: 100%; margin: 0.5rem 0; color: white; font-weight: 500;
+        }
+        .button-primary-det { background-color: var(--primary-color-det); }
+        .button-primary-det:hover { background-color: #0056b3; }
+        .button-secondary-det { background-color: var(--secondary-color-det); }
+        .button-secondary-det:hover { background-color: #545b62; }
+        .button-warning-det { background-color: var(--warning-color-det); color: #212529; }
+        .button-warning-det:hover { background-color: #e0a800; }
+        .button-danger-det { background-color: var(--danger-color-det); }
+        .button-danger-det:hover { background-color: #b02a37; }
+
+
+        .process-section-det { margin-top: 20px; padding: 15px; background-color: var(--background-light-det); border-radius: 0.375rem; border: 1px solid var(--border-color-det); }
+        .latex-process-det { 
+            margin: 10px 0; padding: 20px; background-color: white; border-radius: 0.25rem; 
+            min-height: 150px; overflow-x: auto; border: 1px solid var(--border-color-det); 
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); font-size: 1.1em;
+        }
+        .operations-box-det { padding: 15px; background-color: var(--background-light-det); border-radius: 0.375rem; margin: 1rem 0; border: 1px solid var(--border-color-det); }
+        .operation-inputs-det { margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+        .operation-inputs-det div { display: flex; flex-direction: column; } /* Stack label and select/input */
+        .operation-inputs-det label { margin-bottom: 0.25rem; font-weight: 500; font-size: 0.9em; }
+
+        .info-section-det { margin-top: 1.5rem; padding: 1rem; background-color: #e9ecef; border-radius: 0.25rem; border-left: 4px solid var(--primary-color-det); font-size: 0.9em;}
+        .properties-section-det { margin-top: 1.5rem; padding: 1rem; background-color: #e9ecef; border-radius: 0.25rem; }
+        .property-item-det { margin-bottom: 0.75rem; padding: 0.75rem; border-left: 3px solid var(--primary-color-det); background-color: white; border-radius: 0.25rem; }
+        .property-item-det p { margin-bottom: 0.25rem; font-size: 0.9em; }
+        .property-item-det strong { font-size: 0.95em; }
+        
+        .button:disabled { background-color: #ccc; cursor: not-allowed; }
+        .final-determinant-display {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #d1ecf1; /* Light blue for info */
+            border: 1px solid #bee5eb;
+            color: #0c5460; /* Darker blue text */
+            border-radius: 0.25rem;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        
+        /* Estilos para matrices */
+        .matrix-container {
+            margin: 1rem 0;
+        }
+        .latex-output {
+            margin-top: 1.5rem;
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #dee2e6;
         }
     </style>
 </head>
 <body>
     <div id="sidebar">
-        <h2>Caja de Herramientas para algebra lineal</h2>
+        <h2>Álgebra Lineal Interactiva</h2>
         <ul>
             <li><button onclick="app.loadTool('introduccion1')">Introducción</button></li>
-            <!-- <li><button onclick="app.loadTool('determinantes2')">Cálculo de Matrices2</button></li> -->
-            <li><button onclick="app.loadTool('determinantes3')">Suma de matrices</button></li>
-            <li><button onclick="app.loadTool('determinantes4')">Producto de matrices</button></li>
-            <li><button onclick="app.loadTool('algebraLineal')">Cálculo para sistemas de ecuaciones</button></li>
-            <li><button onclick="app.loadTool('determinantes')">Cálculo para Determinantes</button></li>
-            <li><button onclick="app.loadTool('determinantes5')">Potencia de una matriz</button></li>
-            <!-- Más herramientas pueden agregarse aquí -->
+            <li><button onclick="app.loadTool('determinantes3')">Suma de Matrices</button></li>
+            <li><button onclick="app.loadTool('determinantes4')">Producto de Matrices</button></li>
+            <li><button onclick="app.loadTool('determinantes5')">Potencia de una Matriz</button></li>
+            <li><button onclick="app.loadTool('algebraLineal')">Sistemas de Ecuaciones (Gauss-Jordan)</button></li>
+            <li><button onclick="app.loadTool('determinantes')" class="active">Determinantes por Operaciones</button></li>
+            <!-- Más herramientas -->
         </ul>
     </div>
 
     <div id="content">
-        <div id="tool-content" class="tool-container"></div>
+        <div id="tool-content" class="tool-container">
+            <!-- El contenido de la herramienta se cargará aquí -->
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const app = {
+            currentTool: null,
             loadTool: function(tool) {
+                // Remove active class from previous button
+                if (this.currentTool) {
+                    const prevButton = document.querySelector(`#sidebar button[onclick="app.loadTool('${this.currentTool}')"]`);
+                    if (prevButton) prevButton.classList.remove('active');
+                }
+                // Add active class to current button
+                const currentButton = document.querySelector(`#sidebar button[onclick="app.loadTool('${tool}')"]`);
+                if (currentButton) currentButton.classList.add('active');
+                this.currentTool = tool;
+
                 const toolContent = document.getElementById('tool-content');
                 let content = '';
                 
@@ -105,421 +224,414 @@
                         <div class="col-md-8">
                             ${this.gaussJordanMainPanel()}
                         </div>
-                    </div>
-                `;
-                
-            
+                    </div>`;
+                    toolContent.innerHTML = content;
+                    this.gaussJordan.init();
                 } else if(tool === 'introduccion1') {
                     content = `
                     <h3>Introducción a la Caja de Herramientas</h3>
-                        <p> 
-                        </p>
-                        <p>Hace algún tiempo el profesor Carlos Andrés Escobar Guerra propuso la creación de unas cartillas para los cursos de matemáticas de la facultad de Ciencias y Biotecnología, la elaboración de las cartillas produjo la necesidad de tener las herramientas para desarrollar las actividades de dicha cartilla.</p>
-                        <p> 
-                        </p>
-                        <p> 
-                        </p>
-                        <p>Así es que se llegó a la creación de una caja de herramientas donde se encontraran aplicaciones de aritmética, matemáticas I, II y III, y aplicaciones más avanzadas, la caja de herramientas hace más dinámica la clase, hace que los estudiantes adquieran los saberes esenciales más rápidamente, depende del profesor y de los estudiantes no pasar por alto los detalles que conducen a la solución.</p>
-                        <p></p>
-                        <p></p>
-                        <p>Para solucionar muchos de los ejercicios y problemas no es necesario ser un gran estudiante en matemáticas, eso sí, debe saber interiorizar, entender los conceptos que ayudan a solucionar el problema y en la caja de herramientas encontrará los instrumentos que le ayudaran a solucionar los problemas; depende del alumno escoger la herramienta adecuada.</p>
-                        <p></p>
-                        <p></p>
-                        <p>Otra ventaja de la caja de herramientas es que las aplicaciones se pueden encontrar en un sólo espacio virtual y diseñadas de acuerdo a las necesidades de nuestros estudiantes, para la construcción de las herramientas se utilizó R, LaTeX, Flexdashboard, Bookdown, Shiny, y Geogebra.</p>
-                        <p></p>
-                        <p></p>
-                        <p>Se puede decir que el equipo de trabajo está conformado por el profesor Carlos Andrés Escobar Guerra, Pablo Andrés Guzmán, John Jairo Estrada Álvarez y Juan Albero Arias Quiceno. Gracias a la invaluable ayuda del profesor de estadística y programación Pablo Andrés Guzmán puesto que él inspiró la creación de un grupo de estudio en el cual compartía sus conocimientos de R, de otros programas y actualmente da su opinión acerca de las nuevas aplicaciones. John Jairo Estrada, el cerebro del proyecto, es el programador de todas las aplicaciones.</p>
-                
-                `;
-                }
-
-                else if(tool === 'determinantes2') {
+                    <p>Hace algún tiempo el profesor Carlos Andrés Escobar Guerra propuso la creación de unas cartillas para los cursos de matemáticas de la facultad de Ciencias y Biotecnología, la elaboración de las cartillas produjo la necesidad de tener las herramientas para desarrollar las actividades de dicha cartilla.</p>
+                    <p>Así es que se llegó a la creación de una caja de herramientas donde se encontraran aplicaciones de aritmética, matemáticas I, II y III, y aplicaciones más avanzadas, la caja de herramientas hace más dinámica la clase, hace que los estudiantes adquieran los saberes esenciales más rápidamente, depende del profesor y de los estudiantes no pasar por alto los detalles que conducen a la solución.</p>
+                    <p>Para solucionar muchos de los ejercicios y problemas no es necesario ser un gran estudiante en matemáticas, eso sí, debe saber interiorizar, entender los conceptos que ayudan a solucionar el problema y en la caja de herramientas encontrará los instrumentos que le ayudaran a solucionar los problemas; depende del alumno escoger la herramienta adecuada.</p>
+                    <p>Otra ventaja de la caja de herramientas es que las aplicaciones se pueden encontrar en un sólo espacio virtual y diseñadas de acuerdo a las necesidades de nuestros estudiantes, para la construcción de las herramientas se utilizó R, LaTeX, Flexdashboard, Bookdown, Shiny, y Geogebra.</p>
+                    <p>Se puede decir que el equipo de trabajo está conformado por el profesor Carlos Andrés Escobar Guerra, Pablo Andrés Guzmán, John Jairo Estrada Álvarez y Juan Albero Arias Quiceno. Gracias a la invaluable ayuda del profesor de estadística y programación Pablo Andrés Guzmán puesto que él inspiró la creación de un grupo de estudio en el cual compartía sus conocimientos de R, de otros programas y actualmente da su opinión acerca de las nuevas aplicaciones. John Jairo Estrada, el cerebro del proyecto, es el programador de todas las aplicaciones.</p>`;
+                    toolContent.innerHTML = content;
+                } else if(tool === 'determinantes3') { // Suma
                     content = `
-                       
-
-                `;
-                }
-
-                else if(tool === 'determinantes3') {
-                    content = `
-
-                      
-                            <h1 class="mb-4">Suma de Matrices con Escalares</h1>
-                            <div class="input-group">
-                                <div class="input-field">
-                                    <label class="form-label">Filas:</label>
-                                    <input type="number" id="rows" class="form-control" placeholder="Filas" min="1" value="2">
-                                </div>
-                                <div class="input-field">
-                                    <label class="form-label">Columnas:</label>
-                                    <input type="number" id="cols" class="form-control" placeholder="Columnas" min="1" value="2">
-                                </div>
-                                <button class="btn btn-primary" onclick="generateMatrixInputs1()">Generar Matrices</button>
+                        <h1 class="mb-4">Suma de Matrices con Escalares</h1>
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Filas:</label>
+                                <input type="number" id="rowsSum" class="form-control" placeholder="Filas" min="1" value="2">
                             </div>
-
-                            <div id="matrix-inputs" class="matrix-container"></div>
-
-                            <div class="input-group">
-                                <div class="input-field">
-                                    <label class="form-label">Escalar para A:</label>
-                                    <input type="number" id="scalarA" class="scalar-input" value="1">
-                                </div>
-                                <div class="input-field">
-                                    <label class="form-label">Escalar para B:</label>
-                                    <input type="number" id="scalarB" class="scalar-input" value="1">
-                                </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Columnas:</label>
+                                <input type="number" id="colsSum" class="form-control" placeholder="Columnas" min="1" value="2">
                             </div>
-
-                            <button class="btn btn-primary" onclick="calculateSum()">Calcular Suma</button>
-
-                            <div class="latex-output">
-                                <strong>Resultado:</strong>
-                                <div id="matrix-result-latex"></div>
-                            </div>   
-                
-                `;
-                }
-
-                else if(tool === 'determinantes4') {
-                    content = `
-
-                        <!-- Sección Multiplicación de Matrices -->
-                    <div class="input-group">
-                         <div class="input-group">
-                            <div id="matrices" class="section">
-                                <h2>Multiplicación de Matrices</h2>
-                                <div class="input-field">
-                                    <label>Filas (A):</label>
-                                    <input type="number" id="rowsA" placeholder="Filas de A">
-                                </div>
-                                <div class="input-field">
-                                    <label>Columnas (A):</label>
-                                    <input type="number" id="colsA" placeholder="Columnas de A">
-                                </div>
-                                <div class="input-field">
-                                    <label>Filas (B):</label>
-                                    <input type="number" id="rowsB" placeholder="Filas de B">
-                                </div>
-                                <div class="input-field">
-                                    <label>Columnas (B):</label>
-                                    <input type="number" id="colsB" placeholder="Columnas de B">
-                                </div>
-                                <button class="btn btn-primary" onclick="generateMatrixInputs()">Generar Matrices</button>
-                                <div id="matrix-inputs"></div>
-                                <button class="btn btn-primary" onclick="calculateProduct()">Calcular Producto</button>
-                                <div class="latex-output">
-                                    <strong>Desarrollo del producto:</strong>
-                                    <div id="matrix-product-latex"></div>
-                                </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button class="btn btn-primary w-100" onclick="generateMatrixInputsSum()">Generar Matrices</button>
                             </div>
                         </div>
-                    </div>
-                            
-                  `;
-                }
-                
-                
-                else if(tool === 'determinantes') {
-                    content = `
-                        <h2 class="mb-4">Cálculo de Determinantes</h2>
-                        <div class="container">
-                            <div class="grid">
-                                <!-- Dimensión y Configuración -->
-                                <div class="card">
-                                    <h2 class="subtitle">Dimensión de la Matriz</h2>
-                                    <div class="input-group">
-                                        <label for="matrixSize">Tamaño de la matriz cuadrada:</label>
-                                        <input type="number" id="matrixSize" class="number-input" min="2" max="5" value="2">
-                                        <button class="button button-primary" onclick="updateSize()">Generar Matriz</button>
-                                        <button class="button button-warning" onclick="resetMatrix()">Reiniciar Matriz</button>
-                                    </div>
-
-                                    <div class="properties-section">
-                                        <h3 class="subtitle">Propiedades de las Operaciones</h3>
-                                        <div class="property-item">
-                                            <strong>1. Intercambiar Filas (F<sub>i</sub> ↔ F<sub>j</sub>):</strong>
-                                            <p>El determinante cambia de signo: det(A) = -det(A)</p>
-                                        </div>
-                                        <div class="property-item">
-                                            <strong>2. Multiplicar Fila (kF<sub>i</sub>):</strong>
-                                            <p>El determinante se multiplica por k: det(A) = k·det(A)</p>
-                                        </div>
-                                        <div class="property-item">
-                                            <strong>3. Sumar Múltiplo (F<sub>i</sub> + kF<sub>j</sub>):</strong>
-                                            <p>El determinante no cambia</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="info-section">
-                                        <h3>Instrucciones</h3>
-                                        <p>Puede ingresar números como:</p>
-                                        <ul>
-                                            <li>Enteros: 5</li>
-                                            <li>Decimales: 2.5</li>
-                                            <li>Fracciones: 1/2</li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <!-- Matriz y Operaciones -->
-                                <div class="card">
-                                    <h2 class="subtitle">Matriz</h2>
-                                    <div id="matrixInput" class="matrix-grid"></div>
-                                    <button class="button button-primary" onclick="updateInputDeterminant()">Calcular Determinante</button>
-
-                                    <div class="operations-box">
-                                        <select id="operationType" class="operation-selector" onchange="updateOperationInputs()">
-                                            <option value="swap">Intercambiar filas</option>
-                                            <option value="multiply">Multiplicar fila por escalar</option>
-                                            <option value="add">Sumar múltiplo de una fila a otra</option>
-                                        </select>
-                                        <div id="operationInputs" class="operation-inputs"></div>
-                                        <button class="button button-secondary" onclick="applyOperation()">Aplicar Operación</button>
-                                    </div>
-                                </div>
-
-                                <!-- Proceso -->
-                                <div class="card">
-                                    <h2 class="subtitle">Proceso de Cálculo</h2>
-                                    <div class="process-section">
-                                        <div id="determinantProcess" class="latex-process"></div>
-                                    </div>
-                                </div>
+                        <div id="matrix-inputs-sum" class="mb-3"></div>
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Escalar para A:</label>
+                                <input type="number" id="scalarA" class="form-control" value="1" step="any">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Escalar para B:</label>
+                                <input type="number" id="scalarB" class="form-control" value="1" step="any">
                             </div>
                         </div>
-                    `;
-                } else if(tool === 'determinantes5') {
+                        <button class="btn btn-success mb-3" onclick="calculateSum()">Calcular Suma</button>
+                        <div class="latex-output">
+                            <strong>Resultado:</strong>
+                            <div id="matrix-sum-result-latex"></div>
+                        </div>`;
+                    toolContent.innerHTML = content;
+                    generateMatrixInputsSum();
+                } else if(tool === 'determinantes4') { // Producto
                     content = `
-
-                                 <h1 class="mb-4">Potencia de una Matriz</h1>
-                                    <div class="input-group">
-                                        <div class="input-field">
-                                            <label class="form-label">Filas y Columnas (matriz cuadrada):</label>
-                                            <input type="number" id="size" class="form-control" placeholder="Tamaño" min="1" value="2">
-                                        </div>
-                                        <div class="input-field">
-                                            <label class="form-label">Potencia:</label>
-                                            <input type="number" id="power" class="form-control" placeholder="Potencia" min="1" value="2">
-                                        </div>
-                                        <button class="btn btn-primary" onclick="generateMatrixInputs3()">Generar Matriz</button>
-                                    </div>
-
-                                    <div id="matrix-inputs" class="matrix-container"></div>
-
-                                    <button class="btn btn-primary" onclick="calculatePower()">Calcular Potencia</button>
-
-                                    <div class="latex-output">
-                                        <strong>Resultado:</strong>
-                                        <div id="matrix-result-latex"></div>
-                                </div>                    
-                
-                `;
-                }
-                
-                
-                toolContent.innerHTML = content;
-                
-                if(tool === 'algebraLineal') {
-                    this.gaussJordan.init();
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+                        <h2 class="mb-4">Multiplicación de Matrices</h2>
+                        <div class="row mb-3">
+                            <div class="col-md-3"><label class="form-label">Filas (A):</label><input type="number" id="rowsAProd" class="form-control" value="2" min="1"></div>
+                            <div class="col-md-3"><label class="form-label">Columnas (A) / Filas (B):</label><input type="number" id="colsAProd" class="form-control" value="2" min="1" onchange="document.getElementById('rowsBProd').value = this.value; generateMatrixInputsProd();"></div>
+                            <input type="hidden" id="rowsBProd" value="2">
+                            <div class="col-md-3"><label class="form-label">Columnas (B):</label><input type="number" id="colsBProd" class="form-control" value="2" min="1"></div>
+                            <div class="col-md-3 d-flex align-items-end"><button class="btn btn-primary w-100" onclick="generateMatrixInputsProd()">Generar Matrices</button></div>
+                        </div>
+                        <div id="matrix-inputs-prod" class="mb-3"></div>
+                        <button class="btn btn-success mb-3" onclick="calculateProduct()">Calcular Producto</button>
+                        <div class="latex-output">
+                            <strong>Desarrollo del producto:</strong>
+                            <div id="matrix-product-result-latex"></div>
+                        </div>`;
+                    toolContent.innerHTML = content;
+                    generateMatrixInputsProd();
+                } else if(tool === 'determinantes5') { // Potencia
+                     content = `
+                        <h1 class="mb-4">Potencia de una Matriz</h1>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Tamaño (matriz cuadrada):</label>
+                                <input type="number" id="sizePow" class="form-control" placeholder="Tamaño" min="1" value="2">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Potencia (entero ≥ 0):</label>
+                                <input type="number" id="powerPow" class="form-control" placeholder="Potencia" min="0" value="2">
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button class="btn btn-primary w-100" onclick="generateMatrixInputsPow()">Generar Matriz</button>
+                            </div>
+                        </div>
+                        <div id="matrix-inputs-pow" class="matrix-container mb-3"></div>
+                        <button class="btn btn-success mb-3" onclick="calculatePower()">Calcular Potencia</button>
+                        <div class="latex-output">
+                            <strong>Resultado:</strong>
+                            <div id="matrix-pow-result-latex"></div>
+                        </div>`;
+                    toolContent.innerHTML = content;
+                    generateMatrixInputsPow();
                 } else if(tool === 'determinantes') {
-                    initializeMatrix();
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-                }else if(tool === 'introduccion1') {
-                    initializeMatrix();
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+                    content = `
+                    <div class="determinant-tool">
+                        <h2 class="main-title">Cálculo de Determinantes por Operaciones de Fila</h2>
+                        <div class="grid-container">
+                            <div class="card">
+                                <h3 class="subtitle">1. Configurar Matriz</h3>
+                                <div class="mb-3">
+                                    <label for="matrixSizeDet" class="form-label">Tamaño (N x N):</label>
+                                    <div class="input-group">
+                                        <input type="number" id="matrixSizeDet" class="form-control" min="1" max="6" value="2">
+                                        <button class="btn btn-primary" onclick="updateDetSize()">Generar</button>
+                                    </div>
+                                </div>
+                                <div id="matrixInputDet" class="matrix-grid-det mb-3"></div>
+                                <button class="button button-warning-det mb-2" onclick="resetDetMatrix()">Reiniciar Matriz y Proceso</button>
+                                <button class="button button-primary-det" onclick="calculateFinalDeterminant()">Calcular Determinante Final</button>
+                                <div id="finalDeterminantResult" class="final-determinant-display" style="display:none;"></div>
+
+                                <div class="info-section-det">
+                                    <strong>Instrucciones de entrada:</strong>
+                                    <p>Puede ingresar números como enteros (5), decimales (2.5) o fracciones (3/4).</p>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <h3 class="subtitle">2. Aplicar Operaciones</h3>
+                                <div class="operations-box-det">
+                                    <label for="operationTypeDet" class="form-label">Tipo de Operación:</label>
+                                    <select id="operationTypeDet" class="operation-selector mb-3" onchange="updateDetOperationInputs()">
+                                        <option value="swap">Intercambiar filas (Fᵢ ↔ Fⱼ)</option>
+                                        <option value="multiply">Multiplicar fila por escalar (k·Fᵢ → Fᵢ)</option>
+                                        <option value="add">Sumar múltiplo de fila a otra (Fᵢ + k·Fⱼ → Fᵢ)</option>
+                                    </select>
+                                    <div id="operationInputsDet" class="operation-inputs-det mb-3"></div>
+                                    <button class="button button-secondary-det" onclick="applyDetOperation()">Aplicar Operación</button>
+                                    <button class="button button-danger-det mt-2" onclick="undoLastDetOperation()" id="undoDetButton" disabled>Deshacer Última Operación</button>
+                                </div>
+                                
+                                <div class="properties-section-det">
+                                    <h4 class="subtitle" style="font-size: 1.1rem; margin-top:0;">Propiedades de Operaciones y Determinantes</h4>
+                                    <div class="property-item-det"><strong>Fᵢ ↔ Fⱼ:</strong> det(B) = -det(A). El determinante cambia de signo.</div>
+                                    <div class="property-item-det"><strong>k·Fᵢ → Fᵢ:</strong> det(B) = k·det(A). El determinante se multiplica por k.</div>
+                                    <div class="property-item-det"><strong>Fᵢ + k·Fⱼ → Fᵢ:</strong> det(B) = det(A). El determinante no cambia.</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mt-4">
+                            <h3 class="subtitle">3. Proceso de Cálculo y Resultado</h3>
+                            <div class="process-section-det">
+                                <div id="determinantProcessDet" class="latex-process-det">
+                                    <p>Ingrese una matriz y aplique operaciones. El proceso se mostrará aquí.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                    toolContent.innerHTML = content;
+                    initializeDeterminantTool();
                 }
-                else if(tool === 'determinantes2') {
-                    initializeMatrix();
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-                }
-                else if(tool === 'determinantes3') {
-                    generateMatrixInputs1();
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-                }
-                else if(tool === 'determinantes4') {
-                    generateMatrixInputs();
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-                    matrices.generateInputs();
-                }
-                else if(tool === 'determinantes5') {
-                    generateMatrixInputs3();
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+                
+                if (typeof MathJax !== "undefined" && MathJax.Hub) {
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, toolContent]);
                 }
             },
+            
             gaussJordanSidebar: () => `
-                <div class="card gj-card">
+                <div class="card gj-card mb-3">
                     <div class="card-body">
-                        <h4>Dimensiones del Sistema</h4>
-                        <div class="row mb-3">
+                        <h5 class="card-title">Dimensiones del Sistema</h5>
+                        <div class="row mb-2">
                             <div class="col-6">
-                                <input type="number" id="gjRows" class="form-control" value="3" min="2" max="10">
+                                <label for="gjRows" class="form-label form-label-sm">Filas (Ecuaciones):</label>
+                                <input type="number" id="gjRows" class="form-control form-control-sm" value="3" min="1" max="10">
                             </div>
                             <div class="col-6">
-                                <input type="number" id="gjCols" class="form-control" value="3" min="2" max="10">
+                                <label for="gjCols" class="form-label form-label-sm">Columnas (Variables):</label>
+                                <input type="number" id="gjCols" class="form-control form-control-sm" value="3" min="1" max="10">
                             </div>
                         </div>
-                        <button class="btn btn-primary w-100" onclick="app.gaussJordan.updateDimensions()">Actualizar</button>
+                        <button class="btn btn-sm btn-secondary w-100" onclick="app.gaussJordan.updateDimensions()">Actualizar Dimensiones</button>
+                    </div>
+                </div>
+                <div class="card gj-card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Matriz Ampliada Inicial</h5>
+                        <div id="gjMatrixInputs" class="mb-2"></div>
+                        <button class="btn btn-sm btn-primary w-100" onclick="app.gaussJordan.generateMatrix()">Cargar Matriz y Empezar</button>
                     </div>
                 </div>
                 <div class="card gj-card">
                     <div class="card-body">
-                        <h4>Sistema de Ecuaciones</h4>
-                        <div id="gjMatrixInputs" class="mb-3"></div>
-                        <button class="btn btn-primary w-100" onclick="app.gaussJordan.generateMatrix()">Generar Matriz</button>
-                    </div>
-                </div>
-                <div class="card gj-card">
-                    <div class="card-body">
-                        <h4>Operaciones</h4>
-                        <select id="gjOperationType" class="form-select mb-3">
-                            <option value="multiply">Multiplicar fila</option>
-                            <option value="add">Sumar múltiplo</option>
-                            <option value="swap">Intercambiar filas</option>
-                        </select>
-                        <div id="gjOperationInputs"></div>
-                        <button class="btn btn-success w-100" onclick="app.gaussJordan.applyOperation()">Aplicar</button>
-                        <button class="btn btn-warning w-100 mt-2" onclick="app.gaussJordan.undoOperation()">Deshacer</button>
+                        <h5 class="card-title">Operaciones Elementales de Fila</h5>
+                        <div class="mb-2">
+                            <label for="gjOperationType" class="form-label form-label-sm">Tipo de operación:</label>
+                            <select id="gjOperationType" class="form-select form-select-sm">
+                                <option value="multiply">Multiplicar fila por escalar (k·Fᵢ → Fᵢ)</option>
+                                <option value="add">Sumar múltiplo de fila a otra (Fᵢ + k·Fⱼ → Fᵢ)</option>
+                                <option value="swap">Intercambiar filas (Fᵢ ↔ Fⱼ)</option>
+                            </select>
+                        </div>
+                        <div id="gjOperationInputs"></div> <!-- Inputs for operation params here -->
+                        <div class="d-grid gap-2 mt-2">
+                            <button class="btn btn-sm btn-success" onclick="app.gaussJordan.applyOperation()">Aplicar Operación</button>
+                            <button class="btn btn-sm btn-warning" onclick="app.gaussJordan.undoOperation()">Deshacer Última</button>
+                        </div>
                     </div>
                 </div>
             `,
 
             gaussJordanMainPanel: () => `
-                <div class="card gj-card">
+                <div class="card gj-card mb-3">
                     <div class="card-body">
-                        <h4>Matriz Ampliada</h4>
-                        <div id="gjAugmentedMatrix" class="gj-matrix"></div>
+                        <h5 class="card-title">Matriz Original (A₀)</h5>
+                        <div id="gjAugmentedMatrix" class="gj-matrix">Sistema no cargado.</div>
+                    </div>
+                </div>
+                <div class="card gj-card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Matriz Actual Transformada</h5>
+                        <div id="gjCurrentMatrix" class="gj-matrix">Aplique operaciones.</div>
                     </div>
                 </div>
                 <div class="card gj-card">
                     <div class="card-body">
-                        <h4>Matriz Actual</h4>
-                        <div id="gjCurrentMatrix" class="gj-matrix"></div>
-                    </div>
-                </div>
-                <div class="card gj-card">
-                    <div class="card-body">
-                        <h4>Historial</h4>
-                        <pre id="gjOperationHistory" class="gj-history"></pre>
+                        <h5 class="card-title">Historial de Operaciones</h5>
+                        <div id="gjOperationHistory" class="gj-history">No hay operaciones realizadas.</div>
                     </div>
                 </div>
             `,
 
-
-            // ... (resto del código existente del objeto app)
-
-        
-
             gaussJordan: {
                 rows: 3,
-                cols: 3,
-                matrix: [],
-                history: [],
-                steps: [],
+                cols: 3, // Variables, so matrix will be rows x (cols+1)
+                matrix: [], // Current state of the matrix
+                history: [], // Descriptions of operations [{text: "...", matrixBefore: [...], matrixAfter: [...]}]
+                steps: [],   // Snapshots of matrix states [matrix1, matrix2, ...]
 
                 init() {
-                    this.renderMatrixInputs();
-                    this.renderOperationButtons();
-                    document.getElementById('gjOperationType').addEventListener('change', () => this.renderOperationButtons());
+                    // Set default dimensions based on input fields or internal state
+                    this.rows = parseInt(document.getElementById('gjRows').value) || 3;
+                    this.cols = parseInt(document.getElementById('gjCols').value) || 3;
+                    
+                    this.renderMatrixInputs(); // For user to input initial matrix
+                    this.renderOperationParameterInputs(); // For selecting rows, scalars
+                    
+                    // Event listener for operation type change
+                    const opTypeSelect = document.getElementById('gjOperationType');
+                    if (opTypeSelect) {
+                        opTypeSelect.addEventListener('change', () => this.renderOperationParameterInputs());
+                    }
+                    this.updateUI(); // To show initial placeholders like "Sistema no cargado"
                 },
 
                 gcd(a, b) {
                     a = Math.abs(a);
                     b = Math.abs(b);
+                    if (b === 0) return a;
                     while(b) [a, b] = [b, a % b];
                     return a;
                 },
 
                 Fraction(num = 0, den = 1) {
-                    const gcd = this.gcd(num, den);
-                    if(den < 0) [num, den] = [-num, -den];
-                    return { num: num / gcd, den: den / gcd };
-                },
-
-                parseFraction(str) {
-                    if(str.includes('/')) {
-                        const [num, den] = str.split('/').map(Number);
-                        return this.Fraction(num, den);
+                    if (den === 0) throw new Error("Denominator cannot be zero.");
+                    const common = this.gcd(num, den);
+                    num = num / common;
+                    den = den / common;
+                    if(den < 0) { // Normalize sign to numerator
+                        num = -num;
+                        den = -den;
                     }
-                    return this.Fraction(Number(str), 1);
+                    return { num: num, den: den };
                 },
 
+                parseFraction(strInput) {
+                    let str = String(strInput).trim();
+                    if (!str) str = "0"; // Default to 0 if empty
+
+                    if (str.includes('/')) {
+                        const parts = str.split('/');
+                        if (parts.length === 2) {
+                            const num = parseFloat(parts[0]);
+                            const den = parseFloat(parts[1]);
+                            if (!isNaN(num) && !isNaN(den) && den !== 0) {
+                                return this.Fraction(num, den);
+                            }
+                        }
+                        // Invalid fraction format, treat as 0 or throw error
+                        console.warn(`Invalid fraction format: ${strInput}, defaulting to 0.`);
+                        return this.Fraction(0, 1); 
+                    }
+                    const num = parseFloat(str);
+                    if (isNaN(num)) {
+                        console.warn(`Invalid number format: ${strInput}, defaulting to 0.`);
+                        return this.Fraction(0,1);
+                    }
+                    return this.Fraction(num, 1);
+                },
+                
                 updateDimensions() {
                     this.rows = parseInt(document.getElementById('gjRows').value);
                     this.cols = parseInt(document.getElementById('gjCols').value);
-                    this.renderMatrixInputs();
-                    this.renderOperationButtons();
+                    this.renderMatrixInputs(); // Re-render input fields for new dimensions
+                    this.renderOperationParameterInputs(); // Re-render operation selectors for new row count
+                    this.matrix = []; // Clear current matrix data
+                    this.steps = [];
+                    this.history = [];
+                    this.updateUI(); // Update display to reflect reset
                 },
 
                 renderMatrixInputs() {
                     const container = document.getElementById('gjMatrixInputs');
-                    container.innerHTML = '';
+                    if (!container) return;
+                    container.innerHTML = ''; // Clear previous inputs
                     
+                    // Create a table for better alignment if many inputs
+                    const table = document.createElement('div');
+                    table.style.display = 'grid';
+                    table.style.gridTemplateColumns = `repeat(${this.cols + 1}, auto)`;
+                    table.style.gap = '3px';
+
+
                     for(let i = 0; i < this.rows; i++) {
-                        const rowDiv = document.createElement('div');
-                        rowDiv.className = 'row mb-2';
-                        
-                        for(let j = 0; j <= this.cols; j++) {
-                            const colDiv = document.createElement('div');
-                            colDiv.className = 'col';
-                            
+                        for(let j = 0; j <= this.cols; j++) { // Iterate up to cols for the augmented part
                             const input = document.createElement('input');
                             input.type = 'text';
-                            input.className = 'form-control matrix-input';
-                            input.value = '0';
-                            input.id = `gjA${i+1}${j+1}`;
-                            
-                            colDiv.appendChild(input);
-                            rowDiv.appendChild(colDiv);
+                            // Use more specific class for GJ inputs to avoid conflict with determinant tool
+                            input.className = 'form-control form-control-sm matrix-input text-center'; 
+                            input.value = (i === j && i < this.cols) ? '1' : '0'; // Default to identity-like for Ax=b
+                            if (j === this.cols) input.value = i+1; // Default b vector
+                            input.id = `gj_A_${i}_${j}`; // Use underscore for easier parsing if needed
+                            table.appendChild(input);
                         }
-                        container.appendChild(rowDiv);
                     }
+                    container.appendChild(table);
                 },
 
-                generateMatrix() {
+                generateMatrix() { // Reads from gjMatrixInputs and populates this.matrix
                     this.matrix = [];
                     for(let i = 0; i < this.rows; i++) {
-                        const row = [];
+                        const currentRow = [];
                         for(let j = 0; j <= this.cols; j++) {
-                            row.push(this.parseFraction(document.getElementById(`gjA${i+1}${j+1}`).value));
+                            const inputElement = document.getElementById(`gj_A_${i}_${j}`);
+                            if (inputElement) {
+                                currentRow.push(this.parseFraction(inputElement.value));
+                            } else {
+                                // Should not happen if renderMatrixInputs is correct
+                                console.error(`Input element gj_A_${i}_${j} not found!`);
+                                currentRow.push(this.Fraction(0,1)); 
+                            }
                         }
-                        this.matrix.push(row);
+                        this.matrix.push(currentRow);
                     }
-                    this.steps = [JSON.parse(JSON.stringify(this.matrix))];
+                    // Deep copy for steps and history
+                    this.steps = [JSON.parse(JSON.stringify(this.matrix))]; 
                     this.history = [];
                     this.updateUI();
                 },
 
                 applyOperation() {
-                    const operationType = document.getElementById('gjOperationType').value;
-                    
-                    switch(operationType) {
-                        case 'multiply':
-                            const row = parseInt(document.querySelector('input[name="gjRowNum"]').value) - 1;
-                            const scalar = this.parseFraction(document.getElementById('gjScalar').value);
-                            this.matrix[row] = this.matrix[row].map(f => this.multiplyFractions(f, scalar));
-                            this.history.push(`F${row + 1} = ${this.formatFraction(scalar)} × F${row + 1}`);
-                            break;
-                            
-                        case 'add':
-                            const source = parseInt(document.querySelector('input[name="gjSourceRow"]').value) - 1;
-                            const target = parseInt(document.querySelector('input[name="gjTargetRow"]').value) - 1;
-                            const multiplier = this.parseFraction(document.getElementById('gjMultiplier').value);
-                            this.matrix[target] = this.matrix[target].map((f, i) => 
-                                this.addFractions(f, this.multiplyFractions(this.matrix[source][i], multiplier)));
-                            this.history.push(`F${target + 1} = F${target + 1} + ${this.formatFraction(multiplier)} × F${source + 1}`);
-                            break;
-                            
-                        case 'swap':
-                            const row1 = parseInt(document.querySelector('input[name="gjRow1"]').value) - 1;
-                            const row2 = parseInt(document.querySelector('input[name="gjRow2"]').value) - 1;
-                            [this.matrix[row1], this.matrix[row2]] = [this.matrix[row2], this.matrix[row1]];
-                            this.history.push(`Intercambio F${row1 + 1} ↔ F${row2 + 1}`);
-                            break;
+                    if (this.matrix.length === 0) {
+                        alert("Primero genere o cargue una matriz.");
+                        return;
                     }
-                    
-                    this.steps.push(JSON.parse(JSON.stringify(this.matrix)));
-                    this.updateUI();
+                    const operationType = document.getElementById('gjOperationType').value;
+                    const matrixBeforeOp = JSON.parse(JSON.stringify(this.matrix)); // For history
+                    let opDescription = "";
+
+                    try {
+                        let row1_idx, row2_idx, scalar_val, target_idx, source_idx, multiplier_val;
+
+                        switch(operationType) {
+                            case 'multiply':
+                                row1_idx = parseInt(document.getElementById('gjOpRow1').value);
+                                scalar_val = this.parseFraction(document.getElementById('gjOpScalar').value);
+                                if (isNaN(row1_idx)) throw new Error("Seleccione una fila.");
+                                if (scalar_val.num === 0 && scalar_val.den === 1) { // Multiplying by 0
+                                     if (!confirm("Multiplicar una fila por cero resultará en una fila de ceros. ¿Continuar?")) return;
+                                }
+                                if (scalar_val.den === 0) throw new Error("Escalar no puede tener denominador cero.");
+
+                                this.matrix[row1_idx] = this.matrix[row1_idx].map(f => this.multiplyFractions(f, scalar_val));
+                                opDescription = `F_{${row1_idx + 1}} \\leftarrow ${this.formatFraction(scalar_val)} \\cdot F_{${row1_idx + 1}}`;
+                                break;
+                                
+                            case 'add': // F_target <- F_target + k * F_source
+                                target_idx = parseInt(document.getElementById('gjOpTargetRow').value);
+                                source_idx = parseInt(document.getElementById('gjOpSourceRow').value);
+                                multiplier_val = this.parseFraction(document.getElementById('gjOpMultiplier').value);
+                                if (isNaN(target_idx) || isNaN(source_idx)) throw new Error("Seleccione fila fuente y destino.");
+                                if (target_idx === source_idx) throw new Error("Fila fuente y destino no pueden ser la misma para esta operación con k.");
+                                if (multiplier_val.den === 0) throw new Error("Multiplicador no puede tener denominador cero.");
+                                
+                                this.matrix[target_idx] = this.matrix[target_idx].map((val, col_idx) => 
+                                    this.addFractions(val, this.multiplyFractions(this.matrix[source_idx][col_idx], multiplier_val))
+                                );
+                                let k_formatted = this.formatFraction(multiplier_val);
+                                if (multiplier_val.num < 0) k_formatted = `(${k_formatted})`; // Parenthesize negative k
+                                opDescription = `F_{${target_idx + 1}} \\leftarrow F_{${target_idx + 1}} + ${k_formatted} \\cdot F_{${source_idx + 1}}`;
+                                break;
+                                
+                            case 'swap':
+                                row1_idx = parseInt(document.getElementById('gjOpRow1_swap').value);
+                                row2_idx = parseInt(document.getElementById('gjOpRow2_swap').value);
+                                if (isNaN(row1_idx) || isNaN(row2_idx)) throw new Error("Seleccione dos filas para intercambiar.");
+                                if (row1_idx === row2_idx) throw new Error("Seleccione filas diferentes para intercambiar.");
+
+                                [this.matrix[row1_idx], this.matrix[row2_idx]] = [this.matrix[row2_idx], this.matrix[row1_idx]];
+                                opDescription = `F_{${row1_idx + 1}} \\leftrightarrow F_{${row2_idx + 1}}`;
+                                break;
+                        }
+                        
+                        this.steps.push(JSON.parse(JSON.stringify(this.matrix)));
+                        this.history.push({ text: opDescription, matrixBefore: matrixBeforeOp, matrixAfter: JSON.parse(JSON.stringify(this.matrix)) });
+                        this.updateUI();
+
+                    } catch (e) {
+                        alert("Error en la operación: " + e.message);
+                        // Revert matrix to state before failed operation attempt if necessary (though usually not needed if validation is good)
+                        // this.matrix = matrixBeforeOp; 
+                    }
                 },
 
                 multiplyFractions(f1, f2) {
@@ -534,749 +646,682 @@
                 },
 
                 undoOperation() {
-                    if(this.steps.length > 1) {
-                        this.steps.pop();
-                        this.matrix = JSON.parse(JSON.stringify(this.steps[this.steps.length - 1]));
-                        this.history.pop();
+                    if (this.steps.length > 1) { // Need at least initial state + one operation
+                        this.steps.pop(); // Remove current state
+                        this.matrix = JSON.parse(JSON.stringify(this.steps[this.steps.length - 1])); // Revert to previous state
+                        this.history.pop(); // Remove last operation description
                         this.updateUI();
+                    } else {
+                        alert("No hay operaciones para deshacer o está en el estado inicial.");
                     }
                 },
 
-                renderOperationButtons() {
+                renderOperationParameterInputs() { // Renders inputs for row numbers, scalars, etc.
                     const container = document.getElementById('gjOperationInputs');
-                    container.innerHTML = '';
+                    if (!container) return;
+                    container.innerHTML = ''; // Clear previous
                     const type = document.getElementById('gjOperationType').value;
+
+                    let rowOptionsHTML = "";
+                    for (let i = 0; i < this.rows; i++) {
+                        rowOptionsHTML += `<option value="${i}">Fila ${i + 1}</option>`;
+                    }
                     
-                    if(type === 'multiply') {
+                    if (type === 'multiply') {
                         container.innerHTML = `
-                            <div class="mb-3">
-                                <label>Fila a multiplicar:</label>
-                                <div id="gjRowButtons"></div>
-                                <input type="hidden" name="gjRowNum">
+                            <div class="mb-2">
+                                <label for="gjOpRow1" class="form-label form-label-sm">Fila (Fᵢ):</label>
+                                <select id="gjOpRow1" class="form-select form-select-sm">${rowOptionsHTML}</select>
                             </div>
-                            <div class="mb-3">
-                                <label>Escalar:</label>
-                                <input type="text" id="gjScalar" class="form-control" value="1">
-                            </div>
-                        `;
-                        this.renderRowButtons('gjRowButtons', 'gjRowNum');
-                    }
-                    else if(type === 'add') {
+                            <div class="mb-2">
+                                <label for="gjOpScalar" class="form-label form-label-sm">Escalar (k):</label>
+                                <input type="text" id="gjOpScalar" class="form-control form-control-sm" value="1">
+                            </div>`;
+                    } else if (type === 'add') { // F_target <- F_target + k * F_source
                         container.innerHTML = `
-                            <div class="mb-3">
-                                <label>Fila fuente:</label>
-                                <div id="gjSourceButtons"></div>
-                                <input type="hidden" name="gjSourceRow">
+                            <div class="mb-2">
+                                <label for="gjOpTargetRow" class="form-label form-label-sm">Fila Destino (Fᵢ):</label>
+                                <select id="gjOpTargetRow" class="form-select form-select-sm">${rowOptionsHTML}</select>
                             </div>
-                            <div class="mb-3">
-                                <label>Fila destino:</label>
-                                <div id="gjTargetButtons"></div>
-                                <input type="hidden" name="gjTargetRow">
+                            <div class="mb-2">
+                                <label for="gjOpMultiplier" class="form-label form-label-sm">Multiplicador (k):</label>
+                                <input type="text" id="gjOpMultiplier" class="form-control form-control-sm" value="1">
                             </div>
-                            <div class="mb-3">
-                                <label>Multiplicador:</label>
-                                <input type="text" id="gjMultiplier" class="form-control" value="1">
-                            </div>
-                        `;
-                        this.renderRowButtons('gjSourceButtons', 'gjSourceRow');
-                        this.renderRowButtons('gjTargetButtons', 'gjTargetRow');
-                    }
-                    else if(type === 'swap') {
+                            <div class="mb-2">
+                                <label for="gjOpSourceRow" class="form-label form-label-sm">Fila Fuente (Fⱼ):</label>
+                                <select id="gjOpSourceRow" class="form-select form-select-sm">${rowOptionsHTML}</select>
+                            </div>`;
+                    } else if (type === 'swap') {
                         container.innerHTML = `
-                            <div class="mb-3">
-                                <label>Fila 1:</label>
-                                <div id="gjRow1Buttons"></div>
-                                <input type="hidden" name="gjRow1">
+                            <div class="mb-2">
+                                <label for="gjOpRow1_swap" class="form-label form-label-sm">Fila 1 (Fᵢ):</label>
+                                <select id="gjOpRow1_swap" class="form-select form-select-sm">${rowOptionsHTML}</select>
                             </div>
-                            <div class="mb-3">
-                                <label>Fila 2:</label>
-                                <div id="gjRow2Buttons"></div>
-                                <input type="hidden" name="gjRow2">
-                            </div>
-                        `;
-                        this.renderRowButtons('gjRow1Buttons', 'gjRow1');
-                        this.renderRowButtons('gjRow2Buttons', 'gjRow2');
+                            <div class="mb-2">
+                                <label for="gjOpRow2_swap" class="form-label form-label-sm">Fila 2 (Fⱼ):</label>
+                                <select id="gjOpRow2_swap" class="form-select form-select-sm">${rowOptionsHTML}</select>
+                            </div>`;
                     }
                 },
-
-                renderRowButtons(containerId, inputName) {
-                    const container = document.getElementById(containerId);
-                    container.innerHTML = '';
-                    
-                    for(let i = 1; i <= this.rows; i++) {
-                        const btn = document.createElement('button');
-                        btn.type = 'button';
-                        btn.className = 'btn btn-secondary btn-sm me-2 mb-2';
-                        btn.textContent = `F${i}`;
-                        btn.onclick = () => document.querySelector(`input[name="${inputName}"]`).value = i;
-                        container.appendChild(btn);
-                    }
-                },
-
-                formatFraction(f) {
-                    return f.den === 1 ? f.num.toString() : `${f.num}/${f.den}`;
-                },
-
-                matrixToLatex(matrix) {
-                    let latex = '\\begin{pmatrix}\n';
-                    matrix.forEach(row => {
-                        latex += row.map(f => this.formatFraction(f)).join(' & ');
-                        latex += ' \\\\ \n';
-                    });
-                    return latex + '\\end{pmatrix}';
-                },
-
-                updateUI() {
-                    document.getElementById('gjCurrentMatrix').innerHTML = 
-                        `$$${this.matrixToLatex(this.matrix)}$$`;
-                    document.getElementById('gjAugmentedMatrix').innerHTML = 
-                        `$$${this.matrixToLatex(this.steps[0])}$$`;
-                    document.getElementById('gjOperationHistory').textContent = 
-                        this.history.join('\n') || 'No hay operaciones realizadas';
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-                }
-            }
-        };    
-
-
-
-
-
-        
-
-        // Código de la aplicación de cálculo de determinantes
-        let matrix = [];
-        let history = [];
-        let determinantMultiplier = 1;
-        let matrixSize = 2;
-        let initialDeterminant = 0;
-        let currentDeterminant = 0;
-
-        function initializeMatrix() {
-            matrix = Array(matrixSize).fill().map(() => Array(matrixSize).fill(0));
-            document.documentElement.style.setProperty('--matrix-size', matrixSize);
-            history = [];
-            determinantMultiplier = 1;
-            renderMatrix();
-            updateOperationInputs();
-        }
-
-        function updateSize() {
-            const newSize = parseInt(document.getElementById('matrixSize').value);
-            if (newSize >= 2 && newSize <= 5) {
-                matrixSize = newSize;
-                initializeMatrix();
-            } else {
-                alert('El tamaño debe estar entre 2 y 5');
-            }
-        }
-
-        function resetMatrix() {
-            initializeMatrix();
-            history = [];
-            determinantMultiplier = 1;
-            currentDeterminant = 0;
-            initialDeterminant = 0;
-            updateLatexDeterminant();
-        }
-
-        function renderMatrix() {
-            const container = document.getElementById('matrixInput');
-            container.innerHTML = '';
-            
-            for (let i = 0; i < matrixSize; i++) {
-                const row = document.createElement('div');
-                row.className = 'matrix-row';
                 
-                for (let j = 0; j < matrixSize; j++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'matrix-cell';
+                formatFraction(f) { // For LaTeX display
+                    if (f.den === 0) return "\\text{Inválido}";
+                    if (f.den === 1 || f.num === 0) return f.num.toString();
+                    return `\\frac{${f.num}}{${f.den}}`;
+                },
+
+                matrixToLatex(matrixArray) {
+                    if (!matrixArray || matrixArray.length === 0) return '\\begin{pmatrix} \\text{No hay datos} \\end{pmatrix}';
                     
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.className = 'number-input';
-                    input.value = matrix[i][j] || '';
-                    input.placeholder = '0';
-                    
-                    input.onchange = (e) => {
-                        const value = parseNumberInput(e.target.value);
-                        matrix[i][j] = value;
-                    };
-                    
-                    cell.appendChild(input);
-                    row.appendChild(cell);
+                    // Check if it's a valid matrix of fractions (or numbers)
+if (!Array.isArray(matrixArray[0])) return '\\begin{pmatrix} \\text{Datos incorrectos} \\end{pmatrix}';
+
+let latex = '\\begin{pmatrix}\n';
+matrixArray.forEach((row, rowIndex) => {
+  if (!Array.isArray(row)) { // Should not happen with proper fraction objects
+    latex += `\\text{Fila ${rowIndex+1} incorrecta}`;
+  } else {
+    latex += row.map(f_obj => {
+      // Ensure f_obj is a fraction object, otherwise format directly
+      if (typeof f_obj === 'object' && f_obj !== null && 'num' in f_obj && 'den' in f_obj) {
+        return this.formatFraction(f_obj);
+      }
+      return String(f_obj); // Fallback for non-fraction data
+    }).join(' & ');
+  }
+  if (rowIndex < matrixArray.length - 1) {
+    latex += ' \\\\ \n';
+  }
+});
+return latex + '\n\\end{pmatrix}';
+},
+
+updateUI() {
+  const currentMatrixDiv = document.getElementById('gjCurrentMatrix');
+  const augmentedMatrixDiv = document.getElementById('gjAugmentedMatrix'); // Initial matrix
+  const historyDiv = document.getElementById('gjOperationHistory');
+  
+  if (currentMatrixDiv) {
+    currentMatrixDiv.innerHTML = (this.matrix && this.matrix.length > 0) 
+    ? `$$ ${this.matrixToLatex(this.matrix)} $$` 
+    : 'Aplique operaciones o genere una matriz.';
+  }
+  if (augmentedMatrixDiv) {
+    augmentedMatrixDiv.innerHTML = (this.steps && this.steps.length > 0 && this.steps[0]) 
+    ? `$$ ${this.matrixToLatex(this.steps[0])} $$` 
+    : 'Sistema no cargado.';
+  }
+  
+  if (historyDiv) {
+    historyDiv.innerHTML = this.history.length > 0 
+    ? this.history.map(h_entry => `<div>$ ${h_entry.text} $</div>`).join('') 
+    : 'No hay operaciones realizadas.';
+  }
+  // Crucial: Queue MathJax typesetting after updating innerHTML
+  if (typeof MathJax !== "undefined" && MathJax.Hub) {
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('tool-content')]);
+  }
+}
+} // End of app.gaussJordan
+};    
+
+// --- CÓDIGO ESPECÍFICO PARA DETERMINANTES POR OPERACIONES DE FILA ---
+  let detMatrix = []; // Matriz actual (array de arrays de números)
+  let detHistory = []; // Array de objetos: { matrixState: [], operationText: "", factorChange: 1, overallFactor: 1 }
+  let detMatrixSize = 2;
+  let detOverallFactor = 1; // Factor que relaciona det(original) = overallFactor * det(actual)
+  
+  function initializeDeterminantTool() {
+    detMatrixSize = parseInt(document.getElementById('matrixSizeDet').value) || 2;
+    resetMatrixInternal();
+    updateDetOperationInputs(); // Ensure operation inputs are updated for the new size
+    renderDeterminantMatrix();
+    updateDetLatexProcessDisplay();
+    document.getElementById('undoDetButton').disabled = true;
+    document.getElementById('finalDeterminantResult').style.display = 'none';
+    document.getElementById('finalDeterminantResult').textContent = '';
+  }
+  
+  function resetMatrixInternal() {
+    detMatrix = Array(detMatrixSize).fill(null).map(() => Array(detMatrixSize).fill(0));
+    // Fill with some default values for quick testing if desired
+    for(let i=0; i<detMatrixSize; i++) { 
+      for(let j=0; j<detMatrixSize; j++) { 
+        detMatrix[i][j] = (i===j)? i+1 : 0; 
+      } 
+    }
+    detHistory = [];
+    detOverallFactor = 1;
+  }
+  
+  function updateDetSize() {
+    const newSize = parseInt(document.getElementById('matrixSizeDet').value);
+    if (newSize >= 1 && newSize <= 6) { // Allow 1x1
+      detMatrixSize = newSize;
+      initializeDeterminantTool(); // This will re-render and reset everything
+    } else {
+      alert('El tamaño de la matriz debe estar entre 1 y 6.');
+      document.getElementById('matrixSizeDet').value = detMatrixSize; // Revert to old size
+    }
+  }
+  
+  function resetDetMatrix() {
+    initializeDeterminantTool();
+  }
+  
+  function renderDeterminantMatrix() {
+    const container = document.getElementById('matrixInputDet');
+    container.innerHTML = ''; // Clear previous matrix
+    
+    for (let i = 0; i < detMatrixSize; i++) {
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'matrix-row-det';
+      for (let j = 0; j < detMatrixSize; j++) {
+        const cellDiv = document.createElement('div');
+        cellDiv.className = 'matrix-cell-det';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'number-input';
+        input.value = formatNumberForInput(detMatrix[i][j]);
+        input.dataset.row = i;
+        input.dataset.col = j;
+        input.onchange = (e) => {
+          const r = parseInt(e.target.dataset.row);
+          const c = parseInt(e.target.dataset.col);
+          detMatrix[r][c] = parseNumberInput(e.target.value);
+          // No recalculate or update history here, just update the matrix value
+          // The "Calculate Final Determinant" button will use the current state
+          document.getElementById('finalDeterminantResult').style.display = 'none'; // Hide if user changes matrix
+        };
+        cellDiv.appendChild(input);
+        rowDiv.appendChild(cellDiv);
+      }
+      container.appendChild(rowDiv);
+    }
+  }
+  
+  function parseNumberInput(inputStr) {
+    inputStr = String(inputStr).trim();
+    if (inputStr.includes('/')) {
+      const parts = inputStr.split('/');
+      const num = parseFloat(parts[0]);
+      const den = parseFloat(parts[1]);
+      if (!isNaN(num) && !isNaN(den) && den !== 0) {
+        return num / den;
+      }
+      return 0; // Invalid fraction
+    }
+    const num = parseFloat(inputStr);
+    return isNaN(num) ? 0 : num;
+  }
+  
+  function formatNumberForInput(num) { // Simpler formatting for input fields
+    if (num === null || num === undefined) return '';
+    // Attempt to represent as fraction if it's "nice"
+            const tolerance = 1e-9;
+            for (let den = 1; den <= 32; den++) { // Check common small denominators
+                if (Math.abs(num * den - Math.round(num * den)) < tolerance) {
+                    const numerator = Math.round(num * den);
+                    if (den === 1) return numerator.toString();
+                    return `${numerator}/${den}`;
                 }
-                container.appendChild(row);
             }
+            return Number(num.toFixed(4)); // Fallback to decimal with precision
         }
 
-        function parseNumberInput(input) {
-            input = input.trim();
+        function formatNumberForLatex(num) {
+            if (num === null || num === undefined) return '0';
+            if (Number.isInteger(num)) return num.toString();
             
-            if (input.includes('/')) {
-                const [num, den] = input.split('/').map(x => parseFloat(x.trim()));
-                if (!isNaN(num) && !isNaN(den) && den !== 0) {
-                    return num / den;
-                }
-            }
-            
-            const num = parseFloat(input);
-            return isNaN(num) ? 0 : num;
-        }
+            // Enhanced fraction conversion for LaTeX
+            const tolerance = 1.0E-9; // Tolerance for floating point comparisons
+            let sign = num < 0 ? -1 : 1;
+            num = Math.abs(num);
 
-        function formatNumber(num) {
-            if (Number.isInteger(num)) {
-                return num.toString();
-            }
+            // Common fractions direct check (e.g. 0.5, 0.25, 0.333...)
+            // This part can be expanded or made more sophisticated
             
-            const fraction = toFraction(num);
-            if (fraction) {
-                return fraction;
-            }
-            
-            return num.toFixed(2);
-        }
-
-        function toFraction(decimal) {
-            const tolerance = 1.0E-10;
-            let h1 = 1;
-            let h2 = 0;
-            let k1 = 0;
-            let k2 = 1;
-            let b = decimal;
-            
+            let h1 = 1, h2 = 0, k1 = 0, k2 = 1;
+            let b = num;
             do {
                 let a = Math.floor(b);
-                let aux = h1;
-                h1 = a * h1 + h2;
-                h2 = aux;
-                aux = k1;
-                k1 = a * k1 + k2;
-                k2 = aux;
+                let aux = h1; h1 = a * h1 + h2; h2 = aux;
+                aux = k1; k1 = a * k1 + k2; k2 = aux;
                 b = 1 / (b - a);
-            } while (Math.abs(decimal - h1 / k1) > decimal * tolerance && b !== Infinity);
+            } while (Math.abs(num - h1 / k1) > num * tolerance && k1 <= 1000 && b !== Infinity); // Limit denominator size
 
-            if (k1 < 100) {
-                return k1 === 1 ? h1.toString() : `\\frac{${h1}}{${k1}}`;
+            if (k1 !== 0 && k1 <= 1000 && Math.abs(num - h1 / k1) <= num * tolerance) { // Check if fraction is good
+                if (k1 === 1) return (sign * h1).toString();
+                return (sign < 0 ? "-" : "") + `\\frac{${h1}}{${k1}}`;
             }
             
-            return null;
+            // Fallback to decimal if no good fraction found
+            let decimalStr = (sign * num).toFixed(3); // Adjust precision as needed
+            // Remove trailing zeros and unnecessary decimal point
+            decimalStr = decimalStr.replace(/(\.\d*?[1-9])0+$/, '$1').replace(/\.0+$/, '');
+            return decimalStr;
         }
 
-        function calculateDeterminant(mat) {
-            if (matrixSize === 1) {
-                return mat[0][0];
-            }
-            
-            if (matrixSize === 2) {
-                return (mat[0][0] * mat[1][1]) - (mat[0][1] * mat[1][0]);
-            }
+        function calculateRecursiveDeterminant(matrixToCalc) {
+            const n = matrixToCalc.length;
+            if (n === 0) return 0; // Or throw error
+            if (n === 1) return matrixToCalc[0][0];
             
             let det = 0;
-            for (let i = 0; i < matrixSize; i++) {
-                let subMatrix = [];
-                for (let j = 1; j < matrixSize; j++) {
-                    let row = [];
-                    for (let k = 0; k < matrixSize; k++) {
-                        if (k !== i) row.push(mat[j][k]);
-                    }
-                    subMatrix.push(row);
-                }
-                det += mat[0][i] * Math.pow(-1, i) * calculateDeterminant(subMatrix);
+            if (n === 2) {
+                return matrixToCalc[0][0] * matrixToCalc[1][1] - matrixToCalc[0][1] * matrixToCalc[1][0];
+            }
+
+            for (let j = 0; j < n; j++) {
+                const subMatrix = matrixToCalc.slice(1).map(row => 
+                    row.filter((_, colIndex) => colIndex !== j)
+                );
+                det += ((j % 2 === 0) ? 1 : -1) * matrixToCalc[0][j] * calculateRecursiveDeterminant(subMatrix);
             }
             return det;
         }
-
-        function updateLatexDeterminant() {
-            const processDiv = document.getElementById('determinantProcess');
-            let processLatex = '';
-            
-            processLatex += '\\begin{align*}\n';
-            processLatex += 'A &= \\begin{vmatrix}\n';
-            for (let i = 0; i < matrixSize; i++) {
-                processLatex += matrix[i].map(val => formatNumber(val)).join(' & ');
-                if (i < matrixSize - 1) processLatex += ' \\\\\n';
-            }
-            processLatex += '\\end{vmatrix}\n';
-
-            history.forEach((step) => {
-                if (step.matrix) {
-                    processLatex += '&= \\begin{vmatrix}\n';
-                    for (let i = 0; i < matrixSize; i++) {
-                        processLatex += step.matrix[i].map(val => formatNumber(val)).join(' & ');
-                        if (i < matrixSize - 1) processLatex += ' \\\\\n';
-                    }
-
-                    processLatex += '\\end{vmatrix}';
-
-                    if (step.operation) {
-                        processLatex += '\\quad \\text{' + step.operation + '}';
-                    }
-
-                    processLatex += '\\\\\n';
-                }
-            });
-
-            if (currentDeterminant !== 0 || initialDeterminant !== 0) {
-                // Mostrar el resultado parcial si hay un multiplicador
-                if (determinantMultiplier !== 1) {
-                    processLatex += '&= ' + determinantMultiplier + ' \\cdot ' + 
-                                   formatNumber(currentDeterminant/determinantMultiplier) + '\\\\\n';
-                }
-                // Mostrar el resultado final
-                processLatex += '&= ' + formatNumber(currentDeterminant) + '\n';
-            }
-            
-            processLatex += '\\end{align*}';
-            
-            processDiv.innerHTML = processLatex;
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, processDiv]);
-        }
-
-        function updateOperationInputs() {
-            const container = document.getElementById('operationInputs');
-            const operationType = document.getElementById('operationType').value;
-            
-            let html = '';
-            const rowOptions = Array.from({length: matrixSize}, (_, i) => 
-                `<option value="${i}">Fila ${i + 1}</option>`
-            ).join('');
-            
-            switch (operationType) {
-                case 'swap':
-                    html = `
-                        <div>
-                            <label>Fila 1:</label>
-                            <select class="operation-selector" id="row1">${rowOptions}</select>
-                        </div>
-                        <div>
-                            <label>Fila 2:</label>
-                            <select class="operation-selector" id="row2">${rowOptions}</select>
-                        </div>
-                    `;
-                    break;
-                
-                case 'multiply':
-                    html = `
-                        <div>
-                            <label>Fila a multiplicar:</label>
-                            <select class="operation-selector" id="rowToMultiply">${rowOptions}</select>
-                        </div>
-                        <div>
-                            <label>Escalar:</label>
-                            <input type="text" class="number-input" id="scalar" placeholder="Ingrese un número">
-                        </div>
-                    `;
-                    break;
-                
-                case 'add':
-                    html = `
-                        <div>
-                            <label>Fila destino:</label>
-                            <select class="operation-selector" id="targetRow">${rowOptions}</select>
-                        </div>
-                        <div>
-                            <label>Fila fuente:</label>
-                            <select class="operation-selector" id="sourceRow">${rowOptions}</select>
-                        </div>
-                        <div>
-                            <label>Escalar:</label>
-                            <input type="text" class="number-input" id="addScalar" placeholder="Ingrese un número">
-                        </div>
-                    `;
-                    break;
-            }
-            
-            container.innerHTML = html;
-        }
-
-        function applyOperation() {
-            const operationType = document.getElementById('operationType').value;
-            let operationDescription = '';
-
-            try {
-                switch (operationType) {
-                    case 'swap':
-                        const row1 = parseInt(document.getElementById('row1').value);
-                        const row2 = parseInt(document.getElementById('row2').value);
-                        if (row1 === row2) throw new Error('No puedes intercambiar una fila consigo misma.');
-                        swapRows(row1, row2);
-                        operationDescription = `F${row1 + 1} ↔ F${row2 + 1}`;
-                        break;
-
-                    case 'multiply':
-                        const rowToMultiply = parseInt(document.getElementById('rowToMultiply').value);
-                        const scalar = parseNumberInput(document.getElementById('scalar').value);
-                        if (isNaN(scalar)) throw new Error('El escalar debe ser un número válido.');
-                        multiplyRow(rowToMultiply, scalar);
-                        operationDescription = `${scalar} × F${rowToMultiply + 1}`;
-                        break;
-
-                    case 'add':
-                        const targetRow = parseInt(document.getElementById('targetRow').value);
-                        const sourceRow = parseInt(document.getElementById('sourceRow').value);
-                        const addScalar = parseNumberInput(document.getElementById('addScalar').value);
-                        if (isNaN(addScalar)) throw new Error('El escalar debe ser un número válido.');
-                        addRow(targetRow, sourceRow, addScalar);
-                        operationDescription = `F${targetRow + 1} + ${addScalar} × F${sourceRow + 1}`;
-                        break;
-                }
-
-                history.push({ matrix: matrix.map(row => [...row]), operation: operationDescription });
-                updateLatexDeterminant();
-            } catch (error) {
-                alert(error.message);
-            }
-        }
-
-        function swapRows(row1, row2) {
-            [matrix[row1], matrix[row2]] = [matrix[row2], matrix[row1]];
-            determinantMultiplier *= -1;
-        }
-
-        function multiplyRow(row, scalar) {
-            matrix[row] = matrix[row].map(val => val * scalar);
-            determinantMultiplier *= scalar;
-        }
-
-        function addRow(targetRow, sourceRow, scalar) {
-            matrix[targetRow] = matrix[targetRow].map((val, i) => val + scalar * matrix[sourceRow][i]);
-        }
-
-        function updateInputDeterminant() {
-            initialDeterminant = calculateDeterminant(matrix);
-            currentDeterminant = initialDeterminant * determinantMultiplier;
-            updateLatexDeterminant();
-        }
-
-        // Inicializar la matriz al cargar la página
         
+        function updateDetLatexProcessDisplay(finalCalcResult = null) {
+            const processDiv = document.getElementById('determinantProcessDet');
+            let latexString = `\\begin{align*}\n`;
+            
+            if (detHistory.length === 0) {
+                // Show initial matrix if no operations yet
+                const initialMatrixLatex = detMatrix.map(row => row.map(formatNumberForLatex).join(' & ')).join(' \\\\ ');
+                latexString += `\\det(A_0) &= \\begin{vmatrix} ${initialMatrixLatex} \\end{vmatrix}`;
+                if (finalCalcResult !== null) { // If "Calculate Final Determinant" was pressed on initial matrix
+                    latexString += ` = ${formatNumberForLatex(finalCalcResult.value)} \\\\`;
+                }
+            } else {
+                const firstState = detHistory[0];
+                const initialMatrixLatex = firstState.matrixStateBefore.map(row => row.map(formatNumberForLatex).join(' & ')).join(' \\\\ ');
+                latexString += `\\det(A_0) &= \\begin{vmatrix} ${initialMatrixLatex} \\end{vmatrix} \\\\\n`;
 
-        //
+                detHistory.forEach((step, index) => {
+                    const matrixLatex = step.matrixStateAfter.map(row => row.map(formatNumberForLatex).join(' & ')).join(' \\\\ ');
+                    let factorDisplay = "";
+                    if (step.overallFactor !== 1) {
+                        // Check if it's an integer or needs fraction
+    factorDisplay = formatNumberForLatex(step.overallFactor);
+    if (step.overallFactor < 0 && factorDisplay.startsWith("-")) {
+      factorDisplay = `(${factorDisplay})`; // Parenthesize negative factors
+    }
+  }
+  
+  latexString += `&= ${factorDisplay} \\begin{vmatrix} ${matrixLatex} \\end{vmatrix} && \\text{${step.operationText}} \\\\\n`;
+  });
+}
 
-        function generateMatrixInputs() {
-            const rowsA = parseInt(document.getElementById('rowsA').value);
-            const colsA = parseInt(document.getElementById('colsA').value);
-            const rowsB = parseInt(document.getElementById('rowsB').value);
-            const colsB = parseInt(document.getElementById('colsB').value);
+if (finalCalcResult !== null) {
+  if (detHistory.length > 0) { // If there were operations
+    const lastStepOverallFactor = detHistory[detHistory.length - 1].overallFactor;
+    if (lastStepOverallFactor !== 1) {
+      latexString += `&= ${formatNumberForLatex(lastStepOverallFactor)} \\cdot (${formatNumberForLatex(finalCalcResult.detOfCurrentMatrix)}) \\\\\n`;
+    }
+  }
+  latexString += `&= ${formatNumberForLatex(finalCalcResult.value)}\n`;
+}
 
-            if (colsA !== rowsB) {
-                alert("El número de columnas de A debe ser igual al número de filas de B.");
-                return;
+latexString += `\\end{align*}`;
+processDiv.innerHTML = latexString;
+if (typeof MathJax !== "undefined" && MathJax.Hub) {
+  MathJax.Hub.Queue(["Typeset", MathJax.Hub, processDiv]);
+}
+}
+
+
+function updateDetOperationInputs() {
+  const container = document.getElementById('operationInputsDet');
+  const operationType = document.getElementById('operationTypeDet').value;
+  container.innerHTML = ''; // Clear previous inputs
+  
+  const rowOptions = Array.from({length: detMatrixSize}, (_, i) => 
+                                  `<option value="${i}">Fila ${i + 1}</option>`
+  ).join('');
+  
+  let htmlContent = '';
+  switch (operationType) {
+    case 'swap':
+      htmlContent = `
+      <div><label for="row1_det">Fila 1:</label><select id="row1_det" class="operation-selector">${rowOptions}</select></div>
+        <div><label for="row2_det">Fila 2:</label><select id="row2_det" class="operation-selector">${rowOptions}</select></div>
+          `;
+        break;
+        case 'multiply':
+          htmlContent = `
+          <div><label for="rowToMultiply_det">Fila a multiplicar:</label><select id="rowToMultiply_det" class="operation-selector">${rowOptions}</select></div>
+            <div><label for="scalar_det">Escalar (k):</label><input type="text" id="scalar_det" class="number-input" placeholder="Ej: 2, -1/3, 0.5"></div>
+              `;
+            break;
+            case 'add': // F_target <- F_target + k * F_source 
+            htmlContent = `
+            <div><label for="targetRow_det">Fila Destino (Fᵢ):</label><select id="targetRow_det" class="operation-selector">${rowOptions}</select></div>
+              <div><label for="addScalar_det">Escalar (k):</label><input type="text" id="addScalar_det" class="number-input" placeholder="Ej: 1, -2, 1/2"></div>
+              <div><label for="sourceRow_det">Fila Fuente (Fⱼ):</label><select id="sourceRow_det" class="operation-selector">${rowOptions}</select></div>
+              `;
+            break;
+  }
+  container.innerHTML = htmlContent;
+}
+
+function applyDetOperation() {
+  const operationType = document.getElementById('operationTypeDet').value;
+  let operationText = '';
+  let factorChange = 1; // How this operation changes det(current) to det(next)
+  // e.g. swap: det(next) = -1 * det(current) -> factorChange = -1
+  // e.g. kFi:  det(next) = k * det(current)  -> factorChange = k
+  
+  const matrixBeforeOp = JSON.parse(JSON.stringify(detMatrix)); // Deep copy
+  
+  try {
+    switch (operationType) {
+      case 'swap':
+        const r1 = parseInt(document.getElementById('row1_det').value);
+        const r2 = parseInt(document.getElementById('row2_det').value);
+        if (r1 === r2) { alert("Seleccione filas diferentes para intercambiar."); return; }
+        [detMatrix[r1], detMatrix[r2]] = [detMatrix[r2], detMatrix[r1]];
+        operationText = `F_{${r1+1}} \\leftrightarrow F_{${r2+1}}`;
+        factorChange = -1;
+        break;
+        case 'multiply':
+          const rowMul = parseInt(document.getElementById('rowToMultiply_det').value);
+          const scalar = parseNumberInput(document.getElementById('scalar_det').value);
+          if (isNaN(scalar)) { alert("Escalar inválido."); return; }
+          detMatrix[rowMul] = detMatrix[rowMul].map(val => val * scalar);
+          operationText = `${formatNumberForLatex(scalar)} F_{${rowMul+1}} $\\rightarrow$ F_{${rowMul+1}}`;
+          factorChange = scalar;
+          break;
+          case 'add':
+            const targetR = parseInt(document.getElementById('targetRow_det').value);
+          const scalarAdd = parseNumberInput(document.getElementById('addScalar_det').value);
+          const sourceR = parseInt(document.getElementById('sourceRow_det').value);
+          if (isNaN(scalarAdd)) { alert("Escalar inválido."); return; }
+          if (targetR === sourceR) { alert("La fila fuente y destino no pueden ser la misma para esta operación si k != 0 (o trivial)."); return; }
+          
+          detMatrix[targetR] = detMatrix[targetR].map((val, col) => val + scalarAdd * detMatrix[sourceR][col]);
+          let scalarFormatted = formatNumberForLatex(scalarAdd);
+          if (scalarAdd < 0) scalarFormatted = `(${scalarFormatted})`; // Parenthesize negative scalars in sum
+          operationText = `F_{${targetR+1}} + ${scalarFormatted} F_{${sourceR+1}} $\\rightarrow$ F_{${targetR+1}}`;
+          factorChange = 1; // This operation doesn't change the determinant value
+                        break;
+                }
+
+                // det(A_initial) = detOverallFactor_old * det(A_before_op)
+                // det(A_after_op) = factorChange * det(A_before_op)  => det(A_before_op) = (1/factorChange) * det(A_after_op)
+                // So, det(A_initial) = detOverallFactor_old * (1/factorChange) * det(A_after_op)
+                // New detOverallFactor = detOverallFactor_old / factorChange
+                if (factorChange === 0) { // If a row was multiplied by 0
+                    detOverallFactor = 0; // The original determinant becomes 0
+                } else {
+                    detOverallFactor /= factorChange;
+                }
+
+                detHistory.push({
+                    matrixStateBefore: matrixBeforeOp,
+                    matrixStateAfter: JSON.parse(JSON.stringify(detMatrix)), // Deep copy
+                    operationText: operationText,
+                    factorChange: factorChange, // effect of THIS op: det(new_visual) = factorChange * det(old_visual)
+                    overallFactor: detOverallFactor // Relates original to current: det(original) = overallFactor * det(current_visual)
+                });
+
+                renderDeterminantMatrix(); // Update matrix display
+                updateDetLatexProcessDisplay(); // Update process
+                document.getElementById('undoDetButton').disabled = false;
+                document.getElementById('finalDeterminantResult').style.display = 'none'; // Hide if user applies new op
+            } catch (error) {
+                console.error("Error applying operation:", error);
+                alert("Error al aplicar la operación: " + error.message);
             }
+        }
 
-            let inputsHTML = "<h3>Matriz A</h3><div class='matrix-container'>";
+        function undoLastDetOperation() {
+            if (detHistory.length > 0) {
+                const lastStep = detHistory.pop();
+                detMatrix = JSON.parse(JSON.stringify(lastStep.matrixStateBefore)); // Restore previous matrix state
+                
+                // Recalculate overallFactor up to the new last step
+                if (detHistory.length > 0) {
+                    detOverallFactor = detHistory[detHistory.length-1].overallFactor;
+                } else {
+                    detOverallFactor = 1; // Back to initial state
+                }
+
+                renderDeterminantMatrix();
+                updateDetLatexProcessDisplay();
+                document.getElementById('finalDeterminantResult').style.display = 'none';
+            }
+            document.getElementById('undoDetButton').disabled = detHistory.length === 0;
+        }
+
+        function calculateFinalDeterminant() {
+            const detOfCurrentMatrix = calculateRecursiveDeterminant(detMatrix);
+            const finalDeterminantValue = detOverallFactor * detOfCurrentMatrix;
+
+            const resultDisplay = document.getElementById('finalDeterminantResult');
+            resultDisplay.textContent = `Determinante Final = ${formatNumberForLatex(finalDeterminantValue)}`;
+            resultDisplay.style.display = 'block';
+            
+            updateDetLatexProcessDisplay({ value: finalDeterminantValue, detOfCurrentMatrix: detOfCurrentMatrix });
+        }
+
+        // --- FIN CÓDIGO DETERMINANTES ---
+
+
+        // --- FUNCIONES PARA SUMA DE MATRICES ---
+        function generateMatrixInputsSum() {
+            const rows = parseInt(document.getElementById('rowsSum').value);
+            const cols = parseInt(document.getElementById('colsSum').value);
+            let inputsHTML = `<div class="row"><div class="col-md-6"><h3>Matriz A</h3><div class="matrix-container" style="display: grid; grid-template-columns: repeat(${cols}, auto); gap: 5px;">`;
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    inputsHTML += `<input type="number" class="form-control text-center" id="matrixA-${i}-${j}" placeholder="A[${i+1},${j+1}]" value="${Math.floor(Math.random()*10)}">`;
+                }
+            }
+            inputsHTML += `</div></div><div class="col-md-6"><h3>Matriz B</h3><div class="matrix-container" style="display: grid; grid-template-columns: repeat(${cols}, auto); gap: 5px;">`;
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    inputsHTML += `<input type="number" class="form-control text-center" id="matrixB-${i}-${j}" placeholder="B[${i+1},${j+1}]" value="${Math.floor(Math.random()*10)}">`;
+                }
+            }
+            inputsHTML += "</div></div></div>";
+            document.getElementById('matrix-inputs-sum').innerHTML = inputsHTML;
+        }
+
+        function calculateSum() {
+            const rows = parseInt(document.getElementById('rowsSum').value);
+            const cols = parseInt(document.getElementById('colsSum').value);
+            const scalarA = parseFloat(document.getElementById('scalarA').value) || 1;
+            const scalarB = parseFloat(document.getElementById('scalarB').value) || 1;
+            let matrixA = [], matrixB = [], scaledMatrixA = [], scaledMatrixB = [], sumMatrix = [];
+
+            for (let i = 0; i < rows; i++) {
+                matrixA[i] = []; matrixB[i] = []; scaledMatrixA[i] = []; scaledMatrixB[i] = []; sumMatrix[i] = [];
+                for (let j = 0; j < cols; j++) {
+                    matrixA[i][j] = parseFloat(document.getElementById(`matrixA-${i}-${j}`).value) || 0;
+                    matrixB[i][j] = parseFloat(document.getElementById(`matrixB-${i}-${j}`).value) || 0;
+                    scaledMatrixA[i][j] = matrixA[i][j] * scalarA;
+                    scaledMatrixB[i][j] = matrixB[i][j] * scalarB;
+                    sumMatrix[i][j] = scaledMatrixA[i][j] + scaledMatrixB[i][j];
+                }
+            }
+            const latexOutput = `\\begin{align*}
+                A &= ${matrixToLatexGen(matrixA)}, \\quad B = ${matrixToLatexGen(matrixB)} \\\\
+                ${scalarA}A &= ${matrixToLatexGen(scaledMatrixA)}, \\quad ${scalarB}B = ${matrixToLatexGen(scaledMatrixB)} \\\\
+                ${scalarA}A + ${scalarB}B &= ${matrixToLatexGen(sumMatrix)}
+            \\end{align*}`;
+            document.getElementById('matrix-sum-result-latex').innerHTML = latexOutput;
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, "matrix-sum-result-latex"]);
+        }
+        
+        // --- FUNCIONES PARA PRODUCTO DE MATRICES ---
+        function generateMatrixInputsProd() {
+            const rowsA = parseInt(document.getElementById('rowsAProd').value);
+            const colsA = parseInt(document.getElementById('colsAProd').value);
+            // const rowsB = parseInt(document.getElementById('rowsBProd').value); // colsA determines rowsB
+            const colsB = parseInt(document.getElementById('colsBProd').value);
+            document.getElementById('rowsBProd').value = colsA; // Ensure consistency
+
+            let inputsHTML = `<div class="row"><div class="col-md-6"><h3>Matriz A (${rowsA}x${colsA})</h3><div class="matrix-container" style="display: grid; grid-template-columns: repeat(${colsA}, auto); gap: 5px;">`;
             for (let i = 0; i < rowsA; i++) {
-                inputsHTML += "<div class='matrix-row'>";
                 for (let j = 0; j < colsA; j++) {
-                    inputsHTML += `<div class='matrix-cell'><input type="number" id="matrixA-${i}-${j}" placeholder="A[${i+1},${j+1}]"></div>`;
+                    inputsHTML += `<input type="number" class="form-control text-center" id="matrixAProd-${i}-${j}" placeholder="A[${i+1},${j+1}]" value="${Math.floor(Math.random()*5)}">`;
                 }
-                inputsHTML += "</div>";
             }
-            inputsHTML += "</div>";
-
-            inputsHTML += "<h3>Matriz B</h3><div class='matrix-container'>";
-            for (let i = 0; i < rowsB; i++) {
-                inputsHTML += "<div class='matrix-row'>";
+            inputsHTML += `</div></div><div class="col-md-6"><h3>Matriz B (${colsA}x${colsB})</h3><div class="matrix-container" style="display: grid; grid-template-columns: repeat(${colsB}, auto); gap: 5px;">`;
+            for (let i = 0; i < colsA; i++) { // rowsB is colsA
                 for (let j = 0; j < colsB; j++) {
-                    inputsHTML += `<div class='matrix-cell'><input type="number" id="matrixB-${i}-${j}" placeholder="B[${i+1},${j+1}]"></div>`;
+                    inputsHTML += `<input type="number" class="form-control text-center" id="matrixBProd-${i}-${j}" placeholder="B[${i+1},${j+1}]" value="${Math.floor(Math.random()*5)}">`;
                 }
-                inputsHTML += "</div>";
             }
-            inputsHTML += "</div>";
-
-            document.getElementById('matrix-inputs').innerHTML = inputsHTML;
+            inputsHTML += "</div></div></div>";
+            document.getElementById('matrix-inputs-prod').innerHTML = inputsHTML;
         }
 
         function calculateProduct() {
-            const rowsA = parseInt(document.getElementById('rowsA').value);
-            const colsA = parseInt(document.getElementById('colsA').value);
-            const rowsB = parseInt(document.getElementById('rowsB').value);
-            const colsB = parseInt(document.getElementById('colsB').value);
+            const rowsA = parseInt(document.getElementById('rowsAProd').value);
+            const colsA = parseInt(document.getElementById('colsAProd').value);
+            const rowsB = colsA; // From constraint
+            const colsB = parseInt(document.getElementById('colsBProd').value);
+            let matrixA = [], matrixB = [], productMatrix = Array.from({ length: rowsA }, () => Array(colsB).fill(0));
 
-            if (colsA !== rowsB) {
-                alert("El número de columnas de A debe ser igual al número de filas de B.");
-                return;
-            }
-
-            let matrixA = [];
-            let matrixB = [];
             for (let i = 0; i < rowsA; i++) {
                 matrixA[i] = [];
-                for (let j = 0; j < colsA; j++) {
-                    matrixA[i][j] = parseFloat(document.getElementById(`matrixA-${i}-${j}`).value) || 0;
-                }
+                for (let j = 0; j < colsA; j++) matrixA[i][j] = parseFloat(document.getElementById(`matrixAProd-${i}-${j}`).value) || 0;
             }
             for (let i = 0; i < rowsB; i++) {
                 matrixB[i] = [];
-                for (let j = 0; j < colsB; j++) {
-                    matrixB[i][j] = parseFloat(document.getElementById(`matrixB-${i}-${j}`).value) || 0;
-                }
+                for (let j = 0; j < colsB; j++) matrixB[i][j] = parseFloat(document.getElementById(`matrixBProd-${i}-${j}`).value) || 0;
             }
-
-            let productMatrix = Array.from({ length: rowsA }, () =>
-                Array.from({ length: colsB }, () => 0)
-            );
 
             for (let i = 0; i < rowsA; i++) {
                 for (let j = 0; j < colsB; j++) {
-                    for (let k = 0; k < colsA; k++) {
-                        productMatrix[i][j] += matrixA[i][k] * matrixB[k][j];
+                    for (let k = 0; k < colsA; k++) productMatrix[i][j] += matrixA[i][k] * matrixB[k][j];
+                }
+            }
+            
+            // Construir una respuesta más detallada para mostrar el proceso
+            let latexOutput = `\\begin{align*}\\
+                A &= ${matrixToLatexGen(matrixA)} \\\\
+                B &= ${matrixToLatexGen(matrixB)} \\\\
+                A \\times B &= ${matrixToLatexGen(productMatrix)}
+            \\end{align*}`;
+            
+            // Agregar el detalle del cálculo para cada celda (opcional, puede ser extenso para matrices grandes)
+            if (rowsA <= 3 && colsB <= 3) { // Limitar a matrices pequeñas
+                // No usamos equation* para todo el bloque, sino solo para cada línea individual
+                for (let i = 0; i < rowsA; i++) {
+                    for (let j = 0; j < colsB; j++) {
+                        // Crear una nueva ecuación para cada elemento de la matriz resultante
+                        let cellCalc = `\\begin{equation*} (A \\times B)_{${i+1},${j+1}} = `;
+                        
+                        for (let k = 0; k < colsA; k++) {
+                            cellCalc += `${matrixA[i][k]} \\cdot ${matrixB[k][j]}`;
+                            if (k < colsA - 1) cellCalc += " + ";
+                        }
+                        
+                        cellCalc += ` = ${productMatrix[i][j]} \\end{equation*}`;
+                        latexOutput += cellCalc;
+                        
+                        // Añadir espacio visual entre ecuaciones
+                        latexOutput += "";
                     }
                 }
             }
-
-        // Mostrar resultado en LaTeX
-        const latexMatrixA = matrixToLatex(matrixA);
-        const latexMatrixB = matrixToLatex(matrixB);
-        const latexProduct = matrixToLatex(productMatrix);
-
-            document.getElementById('matrix-product-latex').innerHTML = `
-                \\[
-                    \\begin{pmatrix}
-                        ${matrixA.map(row => row.join(' & ')).join(' \\\\ ')}
-                    \\end{pmatrix}
-                    \\times
-                    \\begin{pmatrix}
-                        ${matrixB.map(row => row.join(' & ')).join(' \\\\ ')}
-                    \\end{pmatrix}
-                    =
-                    \\begin{pmatrix}
-                        ${productMatrix.map(row => row.join(' & ')).join(' \\\\ ')}
-                    \\end{pmatrix}
-                \\]
-            `;
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+                
+            document.getElementById('matrix-product-result-latex').innerHTML = latexOutput;
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, "matrix-product-result-latex"]);
         }
 
-        function matrixToLatex(matrix) {
-            return `\\begin{pmatrix}
-                ${matrix.map(row => row.join(' & ')).join(' \\\\ ')}
-            \\end{pmatrix}`;
-        }
-
-        //////////////////////////////////////////////////////////////////////////
-
-        function generateMatrixInputs1() {
-            const rows = parseInt(document.getElementById('rows').value);
-            const cols = parseInt(document.getElementById('cols').value);
-    
-            let inputsHTML = "<h3>Matriz A</h3><div class='matrix-container'>";
-            for (let i = 0; i < rows; i++) {
-                inputsHTML += "<div class='matrix-row'>";
-                for (let j = 0; j < cols; j++) {
-                    inputsHTML += `<div class='matrix-cell'><input type="number" id="matrixA-${i}-${j}" placeholder="A[${i+1},${j+1}]"></div>`;
+        // --- FUNCIONES PARA POTENCIA DE MATRICES ---
+        function generateMatrixInputsPow() {
+            const size = parseInt(document.getElementById('sizePow').value);
+            let inputsHTML = `<h3>Matriz (${size}x${size})</h3><div class="matrix-container" style="display: grid; grid-template-columns: repeat(${size}, auto); gap: 5px; max-width: ${size*60}px; margin:auto;">`;
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    inputsHTML += `<input type="number" class="form-control text-center" id="matrixPow-${i}-${j}" placeholder="M[${i+1},${j+1}]" value="${Math.floor(Math.random()*3)}">`;
                 }
-                inputsHTML += "</div>";
             }
             inputsHTML += "</div>";
-    
-            inputsHTML += "<h3>Matriz B</h3><div class='matrix-container'>";
-            for (let i = 0; i < rows; i++) {
-                inputsHTML += "<div class='matrix-row'>";
-                for (let j = 0; j < cols; j++) {
-                    inputsHTML += `<div class='matrix-cell'><input type="number" id="matrixB-${i}-${j}" placeholder="B[${i+1},${j+1}]"></div>`;
-                }
-                inputsHTML += "</div>";
-            }
-            inputsHTML += "</div>";
-    
-            document.getElementById('matrix-inputs').innerHTML = inputsHTML;
+            document.getElementById('matrix-inputs-pow').innerHTML = inputsHTML;
         }
         
-
-        function calculateSum() {
-            const rows = parseInt(document.getElementById('rows').value);
-            const cols = parseInt(document.getElementById('cols').value);
-            const scalarA = parseFloat(document.getElementById('scalarA').value) || 1;
-            const scalarB = parseFloat(document.getElementById('scalarB').value) || 1;
-
-            let matrixA = [];
-            let matrixB = [];
-            for (let i = 0; i < rows; i++) {
-                matrixA[i] = [];
-                matrixB[i] = [];
-                for (let j = 0; j < cols; j++) {
-                    matrixA[i][j] = parseFloat(document.getElementById(`matrixA-${i}-${j}`).value) || 0;
-                    matrixB[i][j] = parseFloat(document.getElementById(`matrixB-${i}-${j}`).value) || 0;
+        function multiplyMatricesGen(A, B) {
+            let C = Array(A.length).fill(0).map(() => Array(B[0].length).fill(0));
+            for (let i = 0; i < A.length; i++) {
+                for (let j = 0; j < B[0].length; j++) {
+                    for (let k = 0; k < B.length; k++) C[i][j] += A[i][k] * B[k][j];
                 }
             }
-
-            let scaledMatrixA = matrixA.map(row => row.map(value => value * scalarA));
-            let scaledMatrixB = matrixB.map(row => row.map(value => value * scalarB));
-            let sumMatrix = scaledMatrixA.map((row, i) => 
-                row.map((val, j) => val + scaledMatrixB[i][j])
-            );
-
-            const latexOutput = `\\begin{align*}
-                & \\textbf{Matrices originales:} \\\\
-                & A = \\begin{bmatrix}
-                    ${matrixA.map(row => row.join(' & ')).join(' \\\\ ')}
-                \\end{bmatrix} \\qquad
-                B = \\begin{bmatrix}
-                    ${matrixB.map(row => row.join(' & ')).join(' \\\\ ')}
-                \\end{bmatrix} \\\\[1em]
-                & \\textbf{Matrices escaladas:} \\\\
-                & ${scalarA}A = \\begin{bmatrix}
-                    ${scaledMatrixA.map(row => row.join(' & ')).join(' \\\\ ')}
-                \\end{bmatrix} \\qquad
-                ${scalarB}B = \\begin{bmatrix}
-                    ${scaledMatrixB.map(row => row.join(' & ')).join(' \\\\ ')}
-                \\end{bmatrix} \\\\[1em]
-                & \\textbf{Resultado final:} \\\\
-                & ${scalarA}A + ${scalarB}B = \\begin{bmatrix}
-                    ${sumMatrix.map(row => row.join(' & ')).join(' \\\\ ')}
-                \\end{bmatrix}
-            \\end{align*}`;
-
-            document.getElementById('matrix-result-latex').innerHTML = latexOutput;
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, "matrix-result-latex"]);
+            return C;
         }
-
-
-
-
-
-
-
-
-        ///////////////////////////////////////////////////////////////////////////
-
-        function generateMatrixInputs3() {
-            const size = parseInt(document.getElementById('size').value);
-            let inputsHTML = "<h3>Matriz</h3><div class='matrix-container'>";
-            
-            for (let i = 0; i < size; i++) {
-                inputsHTML += "<div class='matrix-row'>";
-                for (let j = 0; j < size; j++) {
-                    inputsHTML += `<div class='matrix-cell'>
-                        <input type="number" id="matrix-${i}-${j}" placeholder="M[${i+1},${j+1}]">
-                    </div>`;
-                }
-                inputsHTML += "</div>";
+        
+        function matrixPower(matrix, p) {
+            if (p === 0) { // Matriz identidad
+                return matrix.map((row, i) => row.map((_, j) => (i === j ? 1 : 0)));
             }
-            inputsHTML += "</div>";
-            
-            document.getElementById('matrix-inputs').innerHTML = inputsHTML;
+            if (p === 1) return matrix;
+            let result = matrix;
+            for (let k = 1; k < p; k++) result = multiplyMatricesGen(result, matrix);
+            return result;
         }
-
+        
         function calculatePower() {
-            const size = parseInt(document.getElementById('size').value);
-            const power = parseInt(document.getElementById('power').value);
-
-            // Obtener matriz inicial
+            const size = parseInt(document.getElementById('sizePow').value);
+            const power = parseInt(document.getElementById('powerPow').value);
             let matrix = [];
             for (let i = 0; i < size; i++) {
                 matrix[i] = [];
-                for (let j = 0; j < size; j++) {
-                    matrix[i][j] = parseFloat(document.getElementById(`matrix-${i}-${j}`).value) || 0;
-                }
+                for (let j = 0; j < size; j++) matrix[i][j] = parseFloat(document.getElementById(`matrixPow-${i}-${j}`).value) || 0;
             }
-
-            // Calcular potencia
             let resultMatrix = matrixPower(matrix, power);
-
-            // Generar LaTeX
-            const latexOutput = `\\[
-                \\begin{array}{l}
-                \\textbf{Matriz original:} \\\\
-                M = \\begin{bmatrix}
-                ${matrix.map(row => row.join(' & ')).join(' \\\\ ')}
-                \\end{bmatrix} \\\\[1em]
-                \\textbf{Resultado:} \\\\
-                M^{${power}} = \\begin{bmatrix}
-                ${resultMatrix.map(row => row.join(' & ')).join(' \\\\ ')}
-                \\end{bmatrix}
-                \\end{array}
-            \\]`;
-
-            // Mostrar resultado
-            document.getElementById('matrix-result-latex').innerHTML = latexOutput;
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, "matrix-result-latex"]);
-        }
-
-        function multiplyMatrices(a, b) {
-            const rowsA = a.length;
-            const colsA = a[0].length;
-            const rowsB = b.length;
-            const colsB = b[0].length;
-
-            if (colsA !== rowsB) {
-                throw new Error("No se pueden multiplicar las matrices: dimensiones incompatibles.");
-            }
-
-            let result = Array.from({ length: rowsA }, () =>
-                Array.from({ length: colsB }, () => 0)
-            );
-
-            for (let i = 0; i < rowsA; i++) {
-                for (let j = 0; j < colsB; j++) {
-                    for (let k = 0; k < colsA; k++) {
-                        result[i][j] += a[i][k] * b[k][j];
+            
+            let latexOutput = `\\begin{align*}\\
+                M &= ${matrixToLatexGen(matrix)} \\\\
+                M^{${power}} &= ${matrixToLatexGen(resultMatrix)}
+            \\end{align*}`;
+            
+            // Si la potencia es pequeña, mostrar el proceso paso a paso
+            if (power > 1 && power <= 4) {
+                // Título del cálculo
+                latexOutput += "\\begin{equation*}\\text{Cálculo paso a paso:}\\end{equation*}";
+                
+                // Matriz en primera potencia (M^1)
+                let intermediate = matrix;
+                latexOutput += `\\begin{equation*} M^1 = ${matrixToLatexGen(matrix)} \\end{equation*}`;
+                
+                // Cálculo de potencias sucesivas
+                for (let p = 2; p <= power; p++) {
+                    intermediate = multiplyMatricesGen(intermediate, matrix);
+                    latexOutput += `\\begin{equation*} M^${p} = ${matrixToLatexGen(intermediate)} \\end{equation*}`;
+                    
+                    // Agregar espacio visual entre ecuaciones si no es la última
+                    if (p < power) {
+                        latexOutput += "\\";
                     }
                 }
             }
-
-            return result;
-        }
-
-        function matrixPower(matrix, power) {
-            if (power === 0) {
-                // Devolver matriz identidad
-                return matrix.map((row, i) => 
-                    row.map((_, j) => i === j ? 1 : 0)
-                );
-            }
             
-            let result = matrix;
-            for (let p = 1; p < power; p++) {
-                result = multiplyMatrices(result, matrix);
-            }
-            return result;
+            document.getElementById('matrix-pow-result-latex').innerHTML = latexOutput;
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, "matrix-pow-result-latex"]);
         }
 
-        //////////////////////////////////////////////////////////////////////////
+        // Función genérica para convertir matriz a LaTeX (usada por Suma, Producto, Potencia)
+        function matrixToLatexGen(matrix) {
+            if (!matrix || matrix.length === 0) return '\\begin{pmatrix} \\end{pmatrix}';
+            return `\\begin{pmatrix} ${matrix.map(row => row.map(val => formatNumberForLatex(val)).join(' & ')).join(' \\\\ ')} \\end{pmatrix}`;
+        }
 
-        // Inicialización
-        initializeMatrix();
-        
+        // Inicialización al cargar la página
         document.addEventListener('DOMContentLoaded', () => {
             MathJax.Hub.Config({
-                tex2jax: {
-                    inlineMath: [['$', '$']],
-                    displayMath: [['$$', '$$']]
-                }
+                tex2jax: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] },
+                CommonHTML: { linebreaks: { automatic: true } },
+                "HTML-CSS": { linebreaks: { automatic: true } },
+                SVG: { linebreaks: { automatic: true } },
+                TeX: {Macros: {bm: "\\boldsymbol"}} // For bold math if needed
             });
-
-
-            // Generar matrices iniciales
-            matrices.generateInputs();
-
-            // Inicializar Gauss-Jordan
-            gauss.renderInputs();
-            gauss.renderOperationInputs();
-
-            // Event listeners
-            document.getElementById('operationType')?.addEventListener('change', () => gauss.renderOperationInputs());
-
-            // Matrix dimension change handlers
-            ['A', 'B'].forEach((matrix, index) => {
-                const nextMatrix = ['B', 'C'][index];
-                document.getElementById(`cols${matrix}`).addEventListener('change', () => {
-                    document.getElementById(`rows${nextMatrix}`).value = 
-                        document.getElementById(`cols${matrix}`).value;
-                    matrices.generateInputs();
-                });
-            });
-
-            ['A', 'B', 'C'].forEach(matrix => {
-                ['rows', 'cols'].forEach(dim => {
-                    document.getElementById(`${dim}${matrix}`).addEventListener('change', () => matrices.generateInputs());
-                });
-            });
+            app.loadTool('determinantes'); // Cargar la herramienta de determinantes por defecto
         });
-
-
     </script>
 
     <script type="module">
@@ -1286,6 +1331,5 @@
             apiHost: "https://flowiseai-railway-production-9c6d7.up.railway.app",
         })
     </script>
-
 </body>
 </html>
