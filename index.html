@@ -180,12 +180,12 @@ border-radius: 0.375rem; /* Bootstrap's default rounded corners */
     <div id="sidebar">
         <h2>Álgebra Lineal Interactiva</h2>
         <ul>
-            <li><button onclick="app.loadTool('introduccion1')">Introducción</button></li>
+            <li><button onclick="app.loadTool('introduccion1')"class="active">Introducción</button></li>
             <li><button onclick="app.loadTool('determinantes3')">Suma de Matrices</button></li>
             <li><button onclick="app.loadTool('determinantes4')">Producto de Matrices</button></li>
             <li><button onclick="app.loadTool('determinantes5')">Potencia de una Matriz</button></li>
             <li><button onclick="app.loadTool('algebraLineal')">Sistemas de Ecuaciones (Gauss-Jordan)</button></li>
-            <li><button onclick="app.loadTool('determinantes')" class="active">Determinantes por Operaciones</button></li>
+            <li><button onclick="app.loadTool('determinantes')">Determinantes por Operaciones</button></li>
             <!-- Más herramientas -->
         </ul>
     </div>
@@ -1320,7 +1320,7 @@ function applyDetOperation() {
                 SVG: { linebreaks: { automatic: true } },
                 TeX: {Macros: {bm: "\\boldsymbol"}} // For bold math if needed
             });
-            app.loadTool('determinantes'); // Cargar la herramienta de determinantes por defecto
+            app.loadTool('introduccion1'); // Cargar la herramienta de determinantes por defecto
         });
     </script>
 
