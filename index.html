@@ -3,1356 +3,1646 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caja de Herramientas Matemáticas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <title>Kit de Matemáticas</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.12.0/lib/browser/math.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; display: flex; background-color: #f8f9fa; }
-        #sidebar { 
-        width: 280px; 
-        background-color: #343a40; /* Darker sidebar */
-        color: white;
-        padding: 20px; 
-        height: 100vh; 
-        position: fixed;
-        left: 0;
-        top: 0;
-        overflow-y: auto;
-        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    }
-    #sidebar h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid #495057;
-    padding-bottom: 0.75rem;
-    }
-    #sidebar ul { list-style: none; padding: 0; }
-    #sidebar li { margin-bottom: 0.5rem; }
-    #sidebar button {
-        width: 100%;
-        padding: 0.85rem 1rem; /* Increased padding */
-        border: none;
-        border-radius: 0.375rem; /* Bootstrap's default rounded corners */
-        background: #495057; /* Slightly lighter than sidebar bg */
-        color: white;
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-        font-weight: 500;
-        text-align: left; /* Align text to the left */
-    }
-    #sidebar button:hover, #sidebar button.active {
-        background: #007bff; /* Bootstrap primary blue */
-        transform: translateX(5px);
-    }
-
-    #content { 
-        margin-left: 280px; /* Same as sidebar width */
-        flex-grow: 1; 
-        padding: 30px;  /* Increased padding */
-        overflow-y: auto; /* Allow content to scroll if needed */
-        height: 100vh;
-    }
-    .tool-container { 
-        background-color: #fff; 
-        border: 1px solid #dee2e6; 
-        border-radius: 0.375rem; 
-        padding: 30px; /* Increased padding */
-        margin-top: 0; /* Removed top margin as content has padding */
-        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
-    }
-    
-    /* Common input styles */
-    .matrix-input input, .number-input, .operation-selector { 
-        width: 100%; 
-        padding: 0.5rem; 
-        border: 1px solid #ced4da; 
-        border-radius: 0.25rem; 
-        text-align: center; 
-        font-size: 1rem;
-        box-sizing: border-box; /* Important for width 100% */
-    }
-    /* Specific style for matrix entry cells in general */
-    .matrix-entry-cell {
-        width: 80px; /* Adjust as needed for fractions */
-        margin: 2px;
-    }
-    .matrix-input input { width: 80px; margin: 2px; } /* Specific to Gauss-Jordan if needed */
-
-
-    .gj-history { max-height: 200px; overflow-y: auto; }
-    .gj-card { margin-bottom: 1rem; }
-    .gj-matrix { font-size: 0.9em; white-space: pre-wrap; }
-    
-    .btn-primary { background-color: #007bff; border-color: #007bff; }
-    .btn-primary:hover { background-color: #0056b3; border-color: #0056b3; }
-    .btn-secondary { background-color: #6c757d; border-color: #6c757d; }
-    .btn-secondary:hover { background-color: #545b62; border-color: #545b62; }
-    .btn-warning { background-color: #ffc107; border-color: #ffc107; color: #212529; }
-    .btn-warning:hover { background-color: #e0a800; border-color: #d39e00; }
-    .btn-success { background-color: #28a745; border-color: #28a745; }
-    .btn-danger { background-color: #dc3545; border-color: #dc3545; }
-
-
-    /* Estilos específicos para la herramienta de determinantes */
-    :root {
-        --primary-color-det: #007bff;      /* Bootstrap primary */
-        --secondary-color-det: #6c757d;   /* Bootstrap secondary */
-        --warning-color-det: #ffc107;     /* Bootstrap warning */
-        --danger-color-det: #dc3545;      /* Bootstrap danger */
-        --border-color-det: #dee2e6;      /* Bootstrap border */
-        --background-light-det: #f8f9fa;  /* Bootstrap light background */
-    }
-
-    .determinant-tool .main-title { font-size: 1.8rem; font-weight: bold; text-align: center; margin-bottom: 2rem; color: #343a40; }
-    .determinant-tool .subtitle { font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 1rem 0; color: #495057; border-bottom: 1px solid var(--border-color-det); padding-bottom: 0.5rem;}
-    
-    .determinant-tool .grid-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 25px;
-    }
-
-    .determinant-tool .card { 
-        background: white; 
-        border-radius: 0.375rem; 
-        padding: 20px; 
-        border: 1px solid var(--border-color-det);
-        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
-    }
-
-    .matrix-grid-det { display: grid; gap: 0.5rem; margin: 1rem 0; }
-    .matrix-row-det { display: flex; gap: 0.5rem; justify-content: center; }
-    .matrix-cell-det { position: relative; min-width: 60px; max-width: 70px; } /* Adjusted width */
-    
-    .determinant-tool .button { 
-        display: inline-block; padding: 0.65rem 1rem; border: none; border-radius: 0.25rem; 
-        font-size: 0.95rem; cursor: pointer; transition: background-color 0.2s; 
-        text-align: center; width: 100%; margin: 0.5rem 0; color: white; font-weight: 500;
-    }
-    .button-primary-det { background-color: var(--primary-color-det); }
-    .button-primary-det:hover { background-color: #0056b3; }
-    .button-secondary-det { background-color: var(--secondary-color-det); }
-    .button-secondary-det:hover { background-color: #545b62; }
-    .button-warning-det { background-color: var(--warning-color-det); color: #212529; }
-    .button-warning-det:hover { background-color: #e0a800; }
-    .button-danger-det { background-color: var(--danger-color-det); }
-    .button-danger-det:hover { background-color: #b02a37; }
-
-
-    .process-section-det { margin-top: 20px; padding: 15px; background-color: var(--background-light-det); border-radius: 0.375rem; border: 1px solid var(--border-color-det); }
-    .latex-process-det { 
-        margin: 10px 0; padding: 20px; background-color: white; border-radius: 0.25rem; 
-        min-height: 150px; overflow-x: auto; border: 1px solid var(--border-color-det); 
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); font-size: 1.1em;
-    }
-    .operations-box-det { padding: 15px; background-color: var(--background-light-det); border-radius: 0.375rem; margin: 1rem 0; border: 1px solid var(--border-color-det); }
-    .operation-inputs-det { margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
-    .operation-inputs-det div { display: flex; flex-direction: column; } /* Stack label and select/input */
-    .operation-inputs-det label { margin-bottom: 0.25rem; font-weight: 500; font-size: 0.9em; }
-
-    .info-section-det { margin-top: 1.5rem; padding: 1rem; background-color: #e9ecef; border-radius: 0.25rem; border-left: 4px solid var(--primary-color-det); font-size: 0.9em;}
-    .properties-section-det { margin-top: 1.5rem; padding: 1rem; background-color: #e9ecef; border-radius: 0.25rem; }
-    .property-item-det { margin-bottom: 0.75rem; padding: 0.75rem; border-left: 3px solid var(--primary-color-det); background-color: white; border-radius: 0.25rem; }
-    .property-item-det p { margin-bottom: 0.25rem; font-size: 0.9em; }
-    .property-item-det strong { font-size: 0.95em; }
-    
-    .button:disabled { background-color: #ccc; cursor: not-allowed; }
-    .final-determinant-display {
-        margin-top: 1.5rem;
-        padding: 1rem;
-        background-color: #d1ecf1; /* Light blue for info */
-        border: 1px solid #bee5eb;
-        color: #0c5460; /* Darker blue text */
-        border-radius: 0.25rem;
-        font-weight: bold;
-        text-align: center;
-        font-size: 1.2em;
-    }
-    
-    /* Estilos para matrices */
-    .matrix-container {
-        margin: 1rem 0;
-    }
-    .latex-output {
-        margin-top: 1.5rem;
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 0.375rem;
-        border: 1px solid #dee2e6;
-        word-wrap: break-word; /* NUEVO: para que el LaTeX no se desborde tanto */
-        overflow-x: auto; /* NUEVO: scroll si es necesario */
-    }
-</style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #6366f1;
+            --accent: #0c0a09;
+            --background: #f9fafb;
+            --text: #1f2937;
+            --card: #ffffff;
+            --sidebar: #f3f4f6;
+            --sidebar-hover: #e5e7eb;
+        }
+        
+        .dark {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #8b5cf6;
+            --accent: #f3f4f6;
+            --background: #111827;
+            --text: #f9fafb;
+            --card: #1f2937;
+            --sidebar: #1f2937;
+            --sidebar-hover: #374151;
+        }
+        
+        * {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        
+        #sidebar {
+            background-color: var(--sidebar);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .sidebar-button {
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+            color: var(--text);
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-button:hover {
+            background-color: var(--sidebar-hover);
+            transform: translateY(-1px);
+        }
+        
+        .sidebar-button.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .sidebar-button i {
+            margin-right: 0.75rem;
+            width: 1.5rem;
+            text-align: center;
+        }
+        
+        .card {
+            background-color: var(--card);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            background-color: var(--background);
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+        }
+        
+        .btn-secondary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn i {
+            margin-right: 0.5rem;
+        }
+        
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: var(--background);
+            border-radius: 0.5rem;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .matrix-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .matrix-table {
+            border-collapse: separate;
+            border-spacing: 5px;
+        }
+        
+        .matrix-table input {
+            width: 80px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            #main-layout {
+                flex-direction: column;
+            }
+            
+            #sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                padding: 1rem;
+            }
+            
+            #content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+            
+            .matrix-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar-button {
+                padding: 0.6rem 1rem;
+                margin-bottom: 0.4rem;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .matrix-grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .matrix-grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        /* Dark mode toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            cursor: pointer;
+            z-index: 100;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 1.25rem;
+        }
+    </style>
 </head>
 <body>
-    <div id="sidebar">
-        <h2>Álgebra Lineal Interactiva</h2>
-        <ul>
-            <li><button onclick="app.loadTool('introduccion1')"class="active">Introducción</button></li>
-            <li><button onclick="app.loadTool('determinantes3')">Suma de Matrices</button></li>
-            <li><button onclick="app.loadTool('determinantes4')">Producto de Matrices</button></li>
-            <li><button onclick="app.loadTool('determinantes5')">Potencia de una Matriz</button></li>
-            <li><button onclick="app.loadTool('algebraLineal')">Sistemas de Ecuaciones (Gauss-Jordan)</button></li>
-            <li><button onclick="app.loadTool('determinantes')">Determinantes por Operaciones</button></li>
-            <!-- Más herramientas -->
-        </ul>
-    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+        <i class="fas fa-moon"></i>
+    </button>
 
-    <div id="content">
-        <div id="tool-content" class="tool-container">
-            <!-- El contenido de la herramienta se cargará aquí -->
+    <div id="main-layout" class="flex min-h-screen">
+        <!-- Sidebar -->
+        <div id="sidebar" class="w-64 fixed h-full overflow-y-auto py-8 px-4">
+            <h2 class="text-2xl font-bold mb-8 text-center">Kit de Matemáticas</h2>
+            
+            <div class="space-y-2">
+                <button class="sidebar-button active" onclick="app.loadTool('welcome')">
+                    <i class="fas fa-home"></i> Inicio
+                </button>
+                <button class="sidebar-button" onclick="app.loadTool('AlgebraElemental1')">
+                    <i class="fas fa-superscript"></i> Álgebra Básica
+                </button>
+                <button class="sidebar-button" onclick="app.loadTool('trigo1')">
+                    <i class="fas fa-chart-line"></i> Trigonometría
+                </button>
+                <button class="sidebar-button" onclick="app.loadTool('Determinantes')">
+                    <i class="fas fa-calculator"></i> Sistemas 2×2
+                </button>
+                <button class="sidebar-button" onclick="app.loadTool('matrices')">
+                    <i class="fas fa-th"></i> Multiplicación Matrices
+                </button>
+                <button class="sidebar-button" onclick="app.loadTool('gauss-jordan')">
+                    <i class="fas fa-table"></i> Método Gauss-Jordan
+                </button>
+                <button class="sidebar-button" onclick="app.loadTool('g_Geogebra')">
+                    <i class="fas fa-compass"></i> Geogebra Clásico
+                </button>
+            </div>
+            
+            <div class="mt-auto pt-8 text-center text-sm opacity-75">
+                <p>© 2023 Kit de Matemáticas</p>
+                <p class="mt-2">Desarrollado por el equipo de Matemáticas</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="content" class="flex-1 ml-64 p-8">
+            <!-- Welcome Section -->
+            <div id="welcome" class="max-w-4xl mx-auto">
+                <div class="card">
+                    <div class="card-header flex items-center">
+                        <i class="fas fa-book-open mr-3 text-primary"></i>
+                        <h2>Bienvenido al Kit de Matemáticas</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="text-xl font-semibold mb-4">Introducción a la Caja de Herramientas</h3>
+                        <p class="mb-4">Hace algún tiempo el profesor Carlos Andrés Escobar Guerra propuso la creación de unas cartillas para los cursos de matemáticas de la facultad de Ciencias y Biotecnología, la elaboración de las cartillas produjo la necesidad de tener las herramientas para desarrollar las actividades de dicha cartilla.</p>
+                        <p class="mb-4">Así es que se llegó a la creación de una caja de herramientas donde se encontraran aplicaciones de aritmética, matemáticas I, II y III, y aplicaciones más avanzadas, la caja de herramientas hace más dinámica la clase, hace que los estudiantes adquieran los saberes esenciales más rápidamente, depende del profesor y de los estudiantes no pasar por alto los detalles que conducen a la solución.</p>
+                        <p class="mb-4">Para solucionar muchos de los ejercicios y problemas no es necesario ser un gran estudiante en matemáticas, eso sí, debe saber interiorizar, entender los conceptos que ayudan a solucionar el problema y en la caja de herramientas encontrará los instrumentos que le ayudaran a solucionar los problemas; depende del alumno escoger la herramienta adecuada.</p>
+                        <p class="mb-4">Otra ventaja de la caja de herramientas es que las aplicaciones se pueden encontrar en un sólo espacio virtual y diseñadas de acuerdo a las necesidades de nuestros estudiantes, para la construcción de las herramientas se utilizó R, LaTeX, Flexdashboard, Bookdown, Shiny, y Geogebra.</p>
+                        <p class="mb-4">Se puede decir que el equipo de trabajo está conformado por el profesor Carlos Andrés Escobar Guerra, Pablo Andrés Guzmán, John Jairo Estrada Álvarez y Juan Albero Arias Quiceno. Gracias a la invaluable ayuda del profesor de estadística y programación Pablo Andrés Guzmán puesto que él inspiró la creación de un grupo de estudio en el cual compartía sus conocimientos de R, de otros programas y actualmente da su opinión acerca de las nuevas aplicaciones. John Jairo Estrada, el cerebro del proyecto, es el programador de todas las aplicaciones.</p>
+                        
+                        <div class="mt-6 bg-blue-50 p-4 rounded-lg border border-blue-200 dark:bg-blue-900 dark:border-blue-700">
+                            <div class="flex items-center">
+                                <i class="fas fa-info-circle text-blue-500 mr-3 text-xl"></i>
+                                <p>Selecciona una herramienta del menú lateral para comenzar.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Álgebra Elemental Section -->
+            <div id="AlgebraElemental1" class="max-w-6xl mx-auto" style="display: none;">
+                <div class="card">
+                    <div class="card-header flex items-center">
+                        <i class="fas fa-superscript mr-3 text-primary"></i>
+                        <h2>Álgebra Básica (Álgebra Elemental)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="matrix-grid matrix-grid-3">
+                            <!-- Función Polinómica -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-chart-line mr-2"></i> Función Polinómica
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-4">Ingresa una función algebraica y evalúala para un valor específico de x.</p>
+                                    <div class="mb-4">
+                                        <label class="block mb-2 text-sm font-medium">Función:</label>
+                                        <input type="text" id="functionExpression" placeholder="Ejemplo: 2*x^2 + 3*x - 1" pattern="[-+*/^().\dx\s]+" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block mb-2 text-sm font-medium">Valor de x:</label>
+                                        <input type="number" id="xValue" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block mb-2 text-sm font-medium" for="polynomialPrecision">Precisión (0-15):</label>
+                                        <input type="number" id="polynomialPrecision" value="2" min="0" max="15" required>
+                                    </div>
+                                    <button class="btn btn-primary w-full" onclick="AlgebraElemental1.evaluateFunction()">
+                                        <i class="fas fa-calculator mr-2"></i> Evaluar
+                                    </button>
+                                    <div id="polynomialResult" class="result mt-4"></div>
+                                </div>
+                            </div>
+
+                            <!-- Función Racional -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-divide mr-2"></i> Función Racional
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-4">Ingresa el numerador y denominador de la función racional en términos de x.</p>
+                                    <div class="mb-4">
+                                        <label class="block mb-2 text-sm font-medium">Numerador:</label>
+                                        <input type="text" id="numeratorExpression" placeholder="Ejemplo: x^2 + 3">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block mb-2 text-sm font-medium">Denominador:</label>
+                                        <input type="text" id="denominatorExpression" placeholder="Ejemplo: x - 2">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block mb-2 text-sm font-medium">Valor de x:</label>
+                                        <input type="number" id="xValueRational">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block mb-2 text-sm font-medium" for="rationalPrecision">Precisión:</label>
+                                        <input type="number" id="rationalPrecision" value="2" min="0" max="15">
+                                    </div>
+                                    <button class="btn btn-primary w-full" onclick="AlgebraElemental1.evaluateRationalFunction()">
+                                        <i class="fas fa-calculator mr-2"></i> Evaluar
+                                    </button>
+                                    <div id="rationalResult" class="result mt-4"></div>
+                                </div>
+                            </div>
+
+                            <!-- Ecuación Cuadrática -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-square-root-alt mr-2"></i> Ecuación Cuadrática
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-4">Ingresa los coeficientes A, B y C de la ecuación cuadrática Ax² + Bx + C = 0</p>
+                                    <div class="grid grid-cols-3 gap-4 mb-4">
+                                        <div>
+                                            <label class="block mb-2 text-sm font-medium">A:</label>
+                                            <input type="number" id="coefficientA" placeholder="A">
+                                        </div>
+                                        <div>
+                                            <label class="block mb-2 text-sm font-medium">B:</label>
+                                            <input type="number" id="coefficientB" placeholder="B">
+                                        </div>
+                                        <div>
+                                            <label class="block mb-2 text-sm font-medium">C:</label>
+                                            <input type="number" id="coefficientC" placeholder="C">
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block mb-2 text-sm font-medium" for="quadraticPrecision">Precisión:</label>
+                                        <input type="number" id="quadraticPrecision" value="2" min="0" max="15">
+                                    </div>
+                                    <button class="btn btn-primary w-full" onclick="AlgebraElemental1.solveQuadraticEquation()">
+                                        <i class="fas fa-calculator mr-2"></i> Resolver
+                                    </button>
+                                    <div id="discriminantResult" class="result mt-4"></div>
+                                    <div id="sqrtDiscriminantResult" class="result"></div>
+                                    <div id="vertexResult" class="result"></div>
+                                    <div id="quadraticRootsResult" class="result"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabla para Funciones -->
+                        <div class="card mt-8">
+                            <div class="card-header">
+                                <i class="fas fa-table mr-2"></i> Tabla para Funciones
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-4">Ingresa una función, un intervalo y un tamaño de paso para generar una tabla de valores.</p>
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium">Función:</label>
+                                        <input type="text" id="tableFunctionExpression" placeholder="Ejemplo: sin(x)">
+                                    </div>
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium">Inicio:</label>
+                                        <input type="number" id="startInterval" placeholder="Valor inicial">
+                                    </div>
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium">Fin:</label>
+                                        <input type="number" id="endInterval" placeholder="Valor final">
+                                    </div>
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium">Paso:</label>
+                                        <input type="number" id="stepSize" placeholder="Tamaño del paso">
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="block mb-2 text-sm font-medium" for="tablePrecision">Precisión:</label>
+                                    <input type="number" id="tablePrecision" value="2" min="0" max="15">
+                                </div>
+                                <button class="btn btn-primary" onclick="AlgebraElemental1.generateTable()">
+                                    <i class="fas fa-table mr-2"></i> Generar Tabla
+                                </button>
+                                <div id="tableResult" class="mt-4 overflow-x-auto"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trigonometría Section -->
+            <div id="trigo1" class="max-w-4xl mx-auto" style="display: none;">
+                <div class="card">
+                    <div class="card-header flex items-center">
+                        <i class="fas fa-chart-line mr-3 text-primary"></i>
+                        <h2>Trigonometría Básica</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-6 text-lg">Calcula valores de las funciones trigonométricas para un ángulo dado.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            <div>
+                                <label class="block mb-2 text-sm font-medium">Ángulo (en grados):</label>
+                                <input type="number" id="angle" placeholder="Ingresa un ángulo en grados" class="w-full">
+                            </div>
+                            <div>
+                                <label class="block mb-2 text-sm font-medium">Función:</label>
+                                <select id="trigFunction" class="w-full">
+                                    <option value="sin">Seno (sin)</option>
+                                    <option value="cos">Coseno (cos)</option>
+                                    <option value="tan">Tangente (tan)</option>
+                                    <option value="csc">Cosecante (csc)</option>
+                                    <option value="sec">Secante (sec)</option>
+                                    <option value="cot">Cotangente (cot)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block mb-2 text-sm font-medium" for="trigPrecision">Precisión:</label>
+                                <input type="number" id="trigPrecision" value="5" min="0" max="15" class="w-full">
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="trigo1.calculateTrig()">
+                            <i class="fas fa-calculator mr-2"></i> Calcular
+                        </button>
+                        
+                        <div id="trigResult" class="result mt-6 p-4 text-lg"></div>
+                        
+                        <div class="bg-blue-50 p-4 rounded-lg mt-8 dark:bg-blue-900">
+                            <h3 class="font-semibold mb-2 flex items-center">
+                                <i class="fas fa-info-circle mr-2"></i> Información útil
+                            </h3>
+                            <p>Algunos ángulos notables:</p>
+                            <ul class="list-disc ml-6 mt-2 space-y-1">
+                                <li>Sin(30°) = 0.5</li>
+                                <li>Cos(60°) = 0.5</li>
+                                <li>Tan(45°) = 1</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GeoGebra Section -->
+            <div id="g_Geogebra" class="max-w-4xl mx-auto" style="display: none;">
+                <div class="card">
+                    <div class="card-header flex items-center">
+                        <i class="fas fa-compass mr-3 text-primary"></i>
+                        <h2>GeoGebra Clásico</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-6 text-lg">Acceso a diferentes aplicaciones de GeoGebra para trabajo matemático.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="card">
+                                <div class="card-header text-center">GeoGebra Geometría</div>
+                                <div class="card-body flex flex-col items-center">
+                                    <i class="fas fa-shapes text-5xl mb-4 text-blue-500"></i>
+                                    <p class="mb-4 text-center">Herramienta ideal para construcciones geométricas interactivas.</p>
+                                    <a href="https://www.geogebra.org/classic?lang=yi" target="_blank" class="btn btn-primary w-full">
+                                        <i class="fas fa-external-link-alt mr-2"></i> Abrir
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header text-center">GeoGebra Simbólico</div>
+                                <div class="card-body flex flex-col items-center">
+                                    <i class="fas fa-calculator text-5xl mb-4 text-purple-500"></i>
+                                    <p class="mb-4 text-center">Sistema de álgebra computacional para cálculos simbólicos avanzados.</p>
+                                    <a href="https://www.geogebra.org/cas?lang=es" target="_blank" class="btn btn-primary w-full">
+                                        <i class="fas fa-external-link-alt mr-2"></i> Abrir
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header text-center">GeoGebra Estadístico</div>
+                                <div class="card-body flex flex-col items-center">
+                                    <i class="fas fa-chart-bar text-5xl mb-4 text-green-500"></i>
+                                    <p class="mb-4 text-center">Análisis estadístico y visualización de datos con diagramas interactivos.</p>
+                                    <a href="https://www.geogebra.org/m/D753wjWN" target="_blank" class="btn btn-primary w-full">
+                                        <i class="fas fa-external-link-alt mr-2"></i> Abrir
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-4 rounded-lg mt-8 dark:bg-yellow-900">
+                            <h3 class="font-semibold mb-2 flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-2 text-yellow-600"></i> Nota importante
+                            </h3>
+                            <p>Las aplicaciones GeoGebra se abrirán en una nueva pestaña. Asegúrate de permitir ventanas emergentes en tu navegador.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Determinantes Section -->
+            <div id="Determinantes" class="max-w-6xl mx-auto" style="display: none;">
+                <div class="card">
+                    <div class="card-header flex items-center">
+                        <i class="fas fa-calculator mr-3 text-primary"></i>
+                        <h2>Sistemas 2×2 y Determinantes</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="matrix-grid matrix-grid-2">
+                            <!-- Sistema 2×2 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-equals mr-2"></i> Sistema 2×2
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-4">Resolver un sistema de ecuaciones lineales de 2×2.</p>
+                                    
+                                    <div class="border rounded-lg p-4 mb-4 bg-gray-50 dark:bg-gray-800">
+                                        <h3 class="text-lg font-medium mb-3">Ecuación 1</h3>
+                                        <div class="flex space-x-2 items-center">
+                                            <input type="number" id="system2x2A11" placeholder="a₁₁" class="w-20 text-center">
+                                            <span>x₁ +</span>
+                                            <input type="number" id="system2x2A12" placeholder="a₁₂" class="w-20 text-center">
+                                            <span>x₂ =</span>
+                                            <input type="number" id="system2x2B1" placeholder="b₁" class="w-20 text-center">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="border rounded-lg p-4 mb-4 bg-gray-50 dark:bg-gray-800">
+                                        <h3 class="text-lg font-medium mb-3">Ecuación 2</h3>
+                                        <div class="flex space-x-2 items-center">
+                                            <input type="number" id="system2x2A21" placeholder="a₂₁" class="w-20 text-center">
+                                            <span>x₁ +</span>
+                                            <input type="number" id="system2x2A22" placeholder="a₂₂" class="w-20 text-center">
+                                            <span>x₂ =</span>
+                                            <input type="number" id="system2x2B2" placeholder="b₂" class="w-20 text-center">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label class="block mb-2 text-sm font-medium" for="system2x2Precision">Precisión:</label>
+                                        <input type="number" id="system2x2Precision" value="2" min="0" max="15">
+                                    </div>
+                                    
+                                    <button class="btn btn-primary w-full" onclick="Determinantes.solveSystem2x2()">
+                                        <i class="fas fa-calculator mr-2"></i> Resolver Sistema
+                                    </button>
+                                    
+                                    <div id="systemResult2x2" class="result mt-4"></div>
+                                </div>
+                            </div>
+
+                            <!-- Determinante 2×2 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-border-all mr-2"></i> Determinante 2×2
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-4">Calcular el determinante de una matriz 2×2.</p>
+                                    
+                                    <div class="flex justify-center mb-4">
+                                        <table class="border-collapse">
+                                            <tr>
+                                                <td class="border p-0">
+                                                    <input type="number" id="matrixA11" placeholder="a₁₁" class="w-20 h-14 text-center border-0">
+                                                </td>
+                                                <td class="border p-0">
+                                                    <input type="number" id="matrixA12" placeholder="a₁₂" class="w-20 h-14 text-center border-0">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border p-0">
+                                                    <input type="number" id="matrixA21" placeholder="a₂₁" class="w-20 h-14 text-center border-0">
+                                                </td>
+                                                <td class="border p-0">
+                                                    <input type="number" id="matrixA22" placeholder="a₂₂" class="w-20 h-14 text-center border-0">
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label class="block mb-2 text-sm font-medium" for="determinant2x2Precision">Precisión:</label>
+                                        <input type="number" id="determinant2x2Precision" value="2" min="0" max="15">
+                                    </div>
+                                    
+                                    <button class="btn btn-primary w-full" onclick="Determinantes.calculateDeterminant2x2()">
+                                        <i class="fas fa-calculator mr-2"></i> Calcular Determinante
+                                    </button>
+                                    
+                                    <div id="determinantResult2x2" class="result mt-4"></div>
+                                    
+                                    <div class="bg-blue-50 p-4 rounded-lg mt-6 dark:bg-blue-900">
+                                        <p class="text-sm">
+                                            <i class="fas fa-info-circle mr-2"></i>
+                                            Fórmula del determinante 2×2: det(A) = a₁₁×a₂₂ - a₁₂×a₂₁
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Matrices Section -->
+            <div id="matrices" class="max-w-6xl mx-auto" style="display: none;">
+                <div class="card">
+                    <div class="card-header flex items-center">
+                        <i class="fas fa-th mr-3 text-primary"></i>
+                        <h2>Multiplicación de Matrices</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="bg-blue-50 p-4 rounded-lg mb-6 dark:bg-blue-900">
+                            <p><i class="fas fa-info-circle mr-2"></i> Puedes usar números enteros, decimales o fracciones (por ejemplo: 1/2, 3/4)</p>
+                        </div>
+
+                        <div class="matrix-grid matrix-grid-3">
+                            <!-- Matriz A -->
+                            <div class="card">
+                                <div class="card-header text-center">Matriz A</div>
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <label class="block mb-2 text-sm font-medium">Dimensiones:</label>
+                                        <div class="flex space-x-2 items-center">
+                                            <input type="number" id="rowsA" value="2" min="1" max="5" class="w-16 text-center">
+                                            <span>×</span>
+                                            <input type="number" id="colsA" value="2" min="1" max="5" class="w-16 text-center">
+                                        </div>
+                                    </div>
+                                    <div id="matrixA" class="matrix-input"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Matriz B -->
+                            <div class="card">
+                                <div class="card-header text-center">Matriz B</div>
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <label class="block mb-2 text-sm font-medium">Dimensiones:</label>
+                                        <div class="flex space-x-2 items-center">
+                                            <input type="number" id="rowsB" value="2" min="1" max="5" class="w-16 text-center">
+                                            <span>×</span>
+                                            <input type="number" id="colsB" value="2" min="1" max="5" class="w-16 text-center">
+                                        </div>
+                                    </div>
+                                    <div id="matrixB" class="matrix-input"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Matriz C -->
+                            <div class="card">
+                                <div class="card-header text-center">Matriz C</div>
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <label class="block mb-2 text-sm font-medium">Dimensiones:</label>
+                                        <div class="flex space-x-2 items-center">
+                                            <input type="number" id="rowsC" value="2" min="1" max="5" class="w-16 text-center">
+                                            <span>×</span>
+                                            <input type="number" id="colsC" value="2" min="1" max="5" class="w-16 text-center">
+                                        </div>
+                                    </div>
+                                    <div id="matrixC" class="matrix-input"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-center space-x-4 mt-6">
+                            <button class="btn btn-outline" onclick="matrices.generateInputs()">
+                                <i class="fas fa-sync mr-2"></i> Generar Matrices
+                            </button>
+                            <button class="btn btn-primary" onclick="matrices.calculate()">
+                                <i class="fas fa-calculator mr-2"></i> Calcular
+                            </button>
+                        </div>
+                        
+                        <div id="matrixResult" class="mt-6"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gauss-Jordan Section -->
+            <div id="gauss-jordan" class="max-w-6xl mx-auto" style="display: none;">
+                <div class="card">
+                    <div class="card-header flex items-center">
+                        <i class="fas fa-table mr-3 text-primary"></i>
+                        <h2>Método Gauss-Jordan</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="lg:col-span-1">
+                                <div class="card mb-6">
+                                    <div class="card-header">Dimensiones del Sistema</div>
+                                    <div class="card-body">
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block mb-2 text-sm font-medium">Ecuaciones:</label>
+                                                <input type="number" id="gaussRows" value="2" min="2" max="5">
+                                            </div>
+                                            <div>
+                                                <label class="block mb-2 text-sm font-medium">Variables:</label>
+                                                <input type="number" id="gaussCols" value="2" min="2" max="5">
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-primary w-full mt-4" onclick="gauss.updateMatrix()">
+                                            <i class="fas fa-sync mr-2"></i> Actualizar
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mb-6">
+                                    <div class="card-header">Sistema de Ecuaciones</div>
+                                    <div class="card-body">
+                                        <div class="mb-4">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" id="useFractions" checked class="mr-2">
+                                                <span>Usar Fracciones</span>
+                                            </label>
+                                        </div>
+                                        <div id="gaussInputs" class="matrix-input"></div>
+                                        <button class="btn btn-primary w-full mt-4" onclick="gauss.generate()">
+                                            <i class="fas fa-cog mr-2"></i> Generar Sistema
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="card">
+                                    <div class="card-header">Operaciones</div>
+                                    <div class="card-body">
+                                        <select id="operationType" class="mb-4">
+                                            <option value="multiply">Multiplicar fila por escalar</option>
+                                            <option value="add">Sumar múltiplo de una fila a otra</option>
+                                            <option value="swap">Intercambiar filas</option>
+                                        </select>
+                                        <div id="operationInputs"></div>
+                                        <div class="grid grid-cols-2 gap-4 mt-4">
+                                            <button class="btn btn-primary" onclick="gauss.applyOperation()">
+                                                <i class="fas fa-check mr-2"></i> Aplicar
+                                            </button>
+                                            <button class="btn btn-outline" onclick="gauss.undo()">
+                                                <i class="fas fa-undo mr-2"></i> Deshacer
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="lg:col-span-2">
+                                <div class="card mb-6">
+                                    <div class="card-header">Sistema Actual</div>
+                                    <div class="card-body">
+                                        <div id="currentSystem" class="matrix-display p-4 bg-gray-50 rounded-lg dark:bg-gray-800"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mb-6">
+                                    <div class="card-header">Matriz Aumentada</div>
+                                    <div class="card-body">
+                                        <div id="augmentedMatrix" class="matrix-display p-4 bg-gray-50 rounded-lg dark:bg-gray-800"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card">
+                                    <div class="card-header">Historial</div>
+                                    <div class="card-body">
+                                        <div class="p-4 bg-gray-50 rounded-lg overflow-x-auto dark:bg-gray-800">
+                                            <div id="operationHistory" class="text-sm">No hay operaciones realizadas</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Configuración inicial de MathJax
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            displayAlign: "left"
+        });
+        
+        // Alternar tema claro/oscuro
+        function toggleTheme() {
+            const body = document.body;
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            
+            if (body.classList.contains('dark')) {
+                body.classList.remove('dark');
+                toggleIcon.classList.remove('fa-sun');
+                toggleIcon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark');
+                toggleIcon.classList.remove('fa-moon');
+                toggleIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Aplicar tema almacenado en localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+                toggleIcon.classList.remove('fa-moon');
+                toggleIcon.classList.add('fa-sun');
+            }
+        });
+
         const app = {
-            currentTool: null,
-
-            // --- NUEVO: Utilidades de Fracciones (movidas y generalizadas desde gaussJordan) ---
-            gcd: function(a, b) {
-                a = Math.abs(a);
-                b = Math.abs(b);
-                if (b === 0) return a;
-                while(b) [a, b] = [b, a % b];
-                return a;
-            },
-
-            Fraction: function(num = 0, den = 1) {
-                if (den === 0) {
-                    console.error("Denominator cannot be zero.");
-                    // Return a "NaN" like fraction or throw error. Here, defaulting to 0/1 for safety in calcs.
-                    num = 0;
-                    den = 1;
-                }
-                const common = this.gcd(num, den);
-                num = num / common;
-                den = den / common;
-                if(den < 0) { // Normalize sign to numerator
-                    num = -num;
-                    den = -den;
-                }
-                return { num: num, den: den, toString: function() { return this.den === 1 ? `${this.num}` : `${this.num}/${this.den}`; } };
-            },
-
-            parseFraction: function(strInput) {
-                let str = String(strInput).trim();
-                if (!str) str = "0"; // Default to 0 if empty
-
-                if (str.includes('/')) {
-                    const parts = str.split('/');
-                    if (parts.length === 2) {
-                        const num = parseInt(parts[0], 10); // Usar parseInt para enteros
-                        const den = parseInt(parts[1], 10);
-                        if (!isNaN(num) && !isNaN(den) && den !== 0) {
-                            return this.Fraction(num, den);
+            currentTool: 'welcome',
+            loadTool(tool) {
+                const tools = ['welcome','AlgebraElemental1','trigo1','Determinantes', 'matrices', 'gauss-jordan','g_Geogebra'];
+                tools.forEach(t => {
+                    document.getElementById(t).style.display = t === tool ? 'block' : 'none';
+                    
+                    // Actualizar clases de botones del sidebar
+                    const button = document.querySelector(`.sidebar-button[onclick="app.loadTool('${t}')"]`);
+                    if (button) {
+                        if (t === tool) {
+                            button.classList.add('active');
+                        } else {
+                            button.classList.remove('active');
                         }
                     }
-                    console.warn(`Invalid fraction format: ${strInput}, defaulting to 0.`);
-                    return this.Fraction(0, 1); 
-                }
-                // Si no es fraccion, intentar como numero (puede ser decimal, pero lo convertimos a fraccion)
-                const numFloat = parseFloat(str);
-                if (isNaN(numFloat)) {
-                    console.warn(`Invalid number format: ${strInput}, defaulting to 0.`);
-                    return this.Fraction(0,1);
-                }
-                // Convertir float a fracción (simple, para decimales como 0.5, 0.25)
-                // Para una conversión más robusta float->fracción, se necesitaría un algoritmo más complejo (ej. continued fractions)
-                // Por ahora, si es entero, es num/1. Si tiene decimales, intentamos hasta 10000 en denominador.
-                if (Number.isInteger(numFloat)) {
-                    return this.Fraction(numFloat, 1);
-                } else {
-                    // Intento simple de convertir decimal a fracción
-                    let tempDen = 1;
-                    let tempNum = numFloat;
-                    while (!Number.isInteger(tempNum) && tempDen < 10000) { // Limitar denominador
-                        tempNum *= 10;
-                        tempDen *= 10;
-                    }
-                    if (Number.isInteger(tempNum)) {
-                        return this.Fraction(Math.round(tempNum), tempDen);
-                    }
-                    // Si no se pudo convertir bien, se queda como numFloat/1 (puede ser problemático para precisión)
-                    console.warn(`Could not precisely convert float ${numFloat} to fraction, using ${numFloat}/1.`);
-                    return this.Fraction(numFloat, 1); // Esto podría ser problemático si se esperan fracciones exactas de floats complejos
-                }
-            },
-
-            addFractions: function(f1, f2) {
-                return this.Fraction(
-                    f1.num * f2.den + f2.num * f1.den,
-                    f1.den * f2.den
-                );
-            },
-
-            multiplyFractions: function(f1, f2) {
-                return this.Fraction(f1.num * f2.num, f1.den * f2.den);
-            },
-            
-            // NUEVO: Formato de fracción para LaTeX, usado por todas las herramientas con fracciones.
-            formatFractionForLatex: function(f) {
-                if (typeof f !== 'object' || f === null || !('num'in f) || !('den' in f)) {
-                     // Si no es un objeto fracción, intentar formatearlo como número (usado por determinante)
-                    if (typeof f === 'number') return formatNumberForLatexDet(f); // Llama a la función específica de determinantes
-                    return String(f); // Fallback
-                }
-                if (f.den === 0) return "\\text{Inválido}";
-                if (f.num === 0) return "0";
-                if (f.den === 1) return f.num.toString();
-                return `${f.num < 0 ? `-` : ``}\\frac{${Math.abs(f.num)}}{${f.den}}`;
-            },
-            // --- FIN Utilidades de Fracciones ---
-
-            loadTool: function(tool) {
-                // Remove active class from previous button
-                if (this.currentTool) {
-                    const prevButton = document.querySelector(`#sidebar button[onclick="app.loadTool('${this.currentTool}')"]`);
-                    if (prevButton) prevButton.classList.remove('active');
-                }
-                // Add active class to current button
-                const currentButton = document.querySelector(`#sidebar button[onclick="app.loadTool('${tool}')"]`);
-                if (currentButton) currentButton.classList.add('active');
+                });
                 this.currentTool = tool;
-
-                const toolContent = document.getElementById('tool-content');
-                let content = '';
                 
-                if(tool === 'algebraLineal') {
-                    content = `
-                    <h2 class="mb-4">Álgebra Lineal - Método Gauss-Jordan</h2>
-                    <div class="row">
-                        <div class="col-md-4">
-                            ${this.gaussJordanSidebar()}
-                        </div>
-                        <div class="col-md-8">
-                            ${this.gaussJordanMainPanel()}
-                        </div>
-                    </div>`;
-                    toolContent.innerHTML = content;
-                    this.gaussJordan.init();
-                } else if(tool === 'introduccion1') {
-                    content = `
-                    <h3>Introducción a la Caja de Herramientas</h3>
-                    <p>Hace algún tiempo el profesor Carlos Andrés Escobar Guerra propuso la creación de unas cartillas para los cursos de matemáticas de la facultad de Ciencias y Biotecnología, la elaboración de las cartillas produjo la necesidad de tener las herramientas para desarrollar las actividades de dicha cartilla.</p>
-                    <p>Así es que se llegó a la creación de una caja de herramientas donde se encontraran aplicaciones de aritmética, matemáticas I, II y III, y aplicaciones más avanzadas, la caja de herramientas hace más dinámica la clase, hace que los estudiantes adquieran los saberes esenciales más rápidamente, depende del profesor y de los estudiantes no pasar por alto los detalles que conducen a la solución.</p>
-                    <p>Para solucionar muchos de los ejercicios y problemas no es necesario ser un gran estudiante en matemáticas, eso sí, debe saber interiorizar, entender los conceptos que ayudan a solucionar el problema y en la caja de herramientas encontrará los instrumentos que le ayudaran a solucionar los problemas; depende del alumno escoger la herramienta adecuada.</p>
-                    <p>Otra ventaja de la caja de herramientas es que las aplicaciones se pueden encontrar en un sólo espacio virtual y diseñadas de acuerdo a las necesidades de nuestros estudiantes, para la construcción de las herramientas se utilizó R, LaTeX, Flexdashboard, Bookdown, Shiny, y Geogebra.</p>
-                    <p>Se puede decir que el equipo de trabajo está conformado por el profesor Carlos Andrés Escobar Guerra, Pablo Andrés Guzmán, John Jairo Estrada Álvarez y Juan Albero Arias Quiceno. Gracias a la invaluable ayuda del profesor de estadística y programación Pablo Andrés Guzmán puesto que él inspiró la creación de un grupo de estudio en el cual compartía sus conocimientos de R, de otros programas y actualmente da su opinión acerca de las nuevas aplicaciones. John Jairo Estrada, el cerebro del proyecto, es el programador de todas las aplicaciones.</p>`;
-                    toolContent.innerHTML = content;
-                } else if(tool === 'determinantes3') { // Suma
-                    content = `
-                        <h1 class="mb-4">Suma de Matrices (con Fracciones)</h1>
-                        <div class="row mb-3">
-                            <div class="col-md-3">
-                                <label class="form-label">Filas:</label>
-                                <input type="number" id="rowsSum" class="form-control" placeholder="Filas" min="1" value="2">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Columnas:</label>
-                                <input type="number" id="colsSum" class="form-control" placeholder="Columnas" min="1" value="2">
-                            </div>
-                            <div class="col-md-3 d-flex align-items-end">
-                                <button class="btn btn-primary w-100" onclick="generateMatrixInputsSum()">Generar Matrices</button>
-                            </div>
-                        </div>
-                        <div id="matrix-inputs-sum" class="mb-3"></div>
-                        <div class="row mb-3">
-                            <div class="col-md-3">
-                                <label class="form-label">Escalar para A (ej: 2, 1/2, -3):</label>
-                                <input type="text" id="scalarA" class="form-control" value="1"> <!-- MODIFICADO: type="text" -->
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Escalar para B (ej: 2, 1/2, -3):</label>
-                                <input type="text" id="scalarB" class="form-control" value="1"> <!-- MODIFICADO: type="text" -->
-                            </div>
-                        </div>
-                        <button class="btn btn-success mb-3" onclick="calculateSum()">Calcular Suma</button>
-                        <div class="latex-output">
-                            <strong>Resultado:</strong>
-                            <div id="matrix-sum-result-latex"></div>
-                        </div>
-                        <div class="alert alert-info mt-3">Ingrese números enteros (ej: 5), decimales simples (ej: 0.5 que será 1/2) o fracciones (ej: 3/4, -1/2).</div>`;
-                    toolContent.innerHTML = content;
-                    generateMatrixInputsSum();
-                } else if(tool === 'determinantes4') { // Producto
-                    content = `
-                        <h2 class="mb-4">Multiplicación de Matrices (con Fracciones)</h2>
-                        <div class="row mb-3">
-                            <div class="col-md-3"><label class="form-label">Filas (A):</label><input type="number" id="rowsAProd" class="form-control" value="2" min="1"></div>
-                            <div class="col-md-3"><label class="form-label">Columnas (A) / Filas (B):</label><input type="number" id="colsAProd" class="form-control" value="2" min="1" onchange="document.getElementById('rowsBProd').value = this.value; generateMatrixInputsProd();"></div>
-                            <input type="hidden" id="rowsBProd" value="2">
-                            <div class="col-md-3"><label class="form-label">Columnas (B):</label><input type="number" id="colsBProd" class="form-control" value="2" min="1"></div>
-                            <div class="col-md-3 d-flex align-items-end"><button class="btn btn-primary w-100" onclick="generateMatrixInputsProd()">Generar Matrices</button></div>
-                        </div>
-                        <div id="matrix-inputs-prod" class="mb-3"></div>
-                        <button class="btn btn-success mb-3" onclick="calculateProduct()">Calcular Producto</button>
-                        <div class="latex-output">
-                            <strong>Desarrollo del producto:</strong>
-                            <div id="matrix-product-result-latex"></div>
-                        </div>
-                        <div class="alert alert-info mt-3">Ingrese números enteros (ej: 5), decimales simples (ej: 0.5 que será 1/2) o fracciones (ej: 3/4, -1/2).</div>`;
-                    toolContent.innerHTML = content;
-                    generateMatrixInputsProd();
-                } else if(tool === 'determinantes5') { // Potencia
-                     content = `
-                        <h1 class="mb-4">Potencia de una Matriz (con Fracciones)</h1>
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label">Tamaño (matriz cuadrada):</label>
-                                <input type="number" id="sizePow" class="form-control" placeholder="Tamaño" min="1" value="2">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Potencia (entero ≥ 0):</label>
-                                <input type="number" id="powerPow" class="form-control" placeholder="Potencia" min="0" value="2">
-                            </div>
-                            <div class="col-md-4 d-flex align-items-end">
-                                <button class="btn btn-primary w-100" onclick="generateMatrixInputsPow()">Generar Matriz</button>
-                            </div>
-                        </div>
-                        <div id="matrix-inputs-pow" class="matrix-container mb-3"></div>
-                        <button class="btn btn-success mb-3" onclick="calculatePower()">Calcular Potencia</button>
-                        <div class="latex-output">
-                            <strong>Resultado:</strong>
-                            <div id="matrix-pow-result-latex"></div>
-                        </div>
-                        <div class="alert alert-info mt-3">Ingrese números enteros (ej: 5), decimales simples (ej: 0.5 que será 1/2) o fracciones (ej: 3/4, -1/2).</div>`;
-                    toolContent.innerHTML = content;
-                    generateMatrixInputsPow();
-                } else if(tool === 'determinantes') {
-                    content = `
-                    <div class="determinant-tool">
-                        <h2 class="main-title">Cálculo de Determinantes por Operaciones de Fila</h2>
-                        <div class="grid-container">
-                            <div class="card">
-                                <h3 class="subtitle">1. Configurar Matriz</h3>
-                                <div class="mb-3">
-                                    <label for="matrixSizeDet" class="form-label">Tamaño (N x N):</label>
-                                    <div class="input-group">
-                                        <input type="number" id="matrixSizeDet" class="form-control" min="1" max="6" value="2">
-                                        <button class="btn btn-primary" onclick="updateDetSize()">Generar</button>
-                                    </div>
-                                </div>
-                                <div id="matrixInputDet" class="matrix-grid-det mb-3"></div>
-                                <button class="button button-warning-det mb-2" onclick="resetDetMatrix()">Reiniciar Matriz y Proceso</button>
-                                <button class="button button-primary-det" onclick="calculateFinalDeterminant()">Calcular Determinante Final</button>
-                                <div id="finalDeterminantResult" class="final-determinant-display" style="display:none;"></div>
+                // Desplazar al inicio cuando se cambia de herramienta
+                window.scrollTo(0, 0);
+            }
+        };
 
-                                <div class="info-section-det">
-                                    <strong>Instrucciones de entrada:</strong>
-                                    <p>Puede ingresar números como enteros (5), decimales (2.5) o fracciones (3/4).</p>
-                                </div>
-                            </div>
+        const AlgebraElemental1 = {
+            evaluateFunction() {
+                const expression = document.getElementById('functionExpression').value;
+                const xValue = parseFloat(document.getElementById('xValue').value);
+                const precision = parseInt(document.getElementById('polynomialPrecision').value);
+                const resultElement = document.getElementById('polynomialResult');
 
-                            <div class="card">
-                                <h3 class="subtitle">2. Aplicar Operaciones</h3>
-                                <div class="operations-box-det">
-                                    <label for="operationTypeDet" class="form-label">Tipo de Operación:</label>
-                                    <select id="operationTypeDet" class="operation-selector mb-3" onchange="updateDetOperationInputs()">
-                                        <option value="swap">Intercambiar filas (Fᵢ ↔ Fⱼ)</option>
-                                        <option value="multiply">Multiplicar fila por escalar (k·Fᵢ → Fᵢ)</option>
-                                        <option value="add">Sumar múltiplo de fila a otra (Fᵢ + k·Fⱼ → Fᵢ)</option>
-                                    </select>
-                                    <div id="operationInputsDet" class="operation-inputs-det mb-3"></div>
-                                    <button class="button button-secondary-det" onclick="applyDetOperation()">Aplicar Operación</button>
-                                    <button class="button button-danger-det mt-2" onclick="undoLastDetOperation()" id="undoDetButton" disabled>Deshacer Última Operación</button>
-                                </div>
-                                
-                                <div class="properties-section-det">
-                                    <h4 class="subtitle" style="font-size: 1.1rem; margin-top:0;">Propiedades de Operaciones y Determinantes</h4>
-                                    <div class="property-item-det"><strong>Fᵢ ↔ Fⱼ:</strong> det(B) = -det(A). El determinante cambia de signo.</div>
-                                    <div class="property-item-det"><strong>k·Fᵢ → Fᵢ:</strong> det(B) = k·det(A). El determinante se multiplica por k.</div>
-                                    <div class="property-item-det"><strong>Fᵢ + k·Fⱼ → Fᵢ:</strong> det(B) = det(A). El determinante no cambia.</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card mt-4">
-                            <h3 class="subtitle">3. Proceso de Cálculo y Resultado</h3>
-                            <div class="process-section-det">
-                                <div id="determinantProcessDet" class="latex-process-det">
-                                    <p>Ingrese una matriz y aplique operaciones. El proceso se mostrará aquí.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
-                    toolContent.innerHTML = content;
-                    initializeDeterminantTool();
+                if (!expression) {
+                    resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error: Por favor ingresa una expresión válida.</div>';
+                    return;
                 }
-                
-                if (typeof MathJax !== "undefined" && MathJax.Hub) {
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, toolContent]);
+                if (isNaN(xValue)) {
+                    resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error: Por favor ingresa un valor numérico válido para x.</div>';
+                    return;
+                }
+
+                try {
+                    const parsedExpression = math.parse(expression);
+                    const compiledExpression = parsedExpression.compile();
+                    const result = compiledExpression.evaluate({ x: xValue });
+                    resultElement.innerHTML = `
+                        <div class="font-medium mb-2">Para x = ${xValue}:</div>
+                        <div class="text-lg">f(x) = ${result.toFixed(precision)}</div>
+                    `;
+                } catch (error) {
+                    resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error: La expresión no se pudo evaluar. Por favor verifica la sintaxis.</div>';
                 }
             },
-            
-            gaussJordanSidebar: () => `
-                <div class="card gj-card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Dimensiones del Sistema</h5>
-                        <div class="row mb-2">
-                            <div class="col-6">
-                                <label for="gjRows" class="form-label form-label-sm">Filas (Ecuaciones):</label>
-                                <input type="number" id="gjRows" class="form-control form-control-sm" value="3" min="1" max="10">
-                            </div>
-                            <div class="col-6">
-                                <label for="gjCols" class="form-label form-label-sm">Columnas (Variables):</label>
-                                <input type="number" id="gjCols" class="form-control form-control-sm" value="3" min="1" max="10">
-                            </div>
-                        </div>
-                        <button class="btn btn-sm btn-secondary w-100" onclick="app.gaussJordan.updateDimensions()">Actualizar Dimensiones</button>
-                    </div>
-                </div>
-                <div class="card gj-card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Matriz Ampliada Inicial</h5>
-                        <div id="gjMatrixInputs" class="mb-2"></div>
-                        <button class="btn btn-sm btn-primary w-100" onclick="app.gaussJordan.generateMatrix()">Cargar Matriz y Empezar</button>
-                    </div>
-                </div>
-                <div class="card gj-card">
-                    <div class="card-body">
-                        <h5 class="card-title">Operaciones Elementales de Fila</h5>
-                        <div class="mb-2">
-                            <label for="gjOperationType" class="form-label form-label-sm">Tipo de operación:</label>
-                            <select id="gjOperationType" class="form-select form-select-sm">
-                                <option value="multiply">Multiplicar fila por escalar (k·Fᵢ → Fᵢ)</option>
-                                <option value="add">Sumar múltiplo de fila a otra (Fᵢ + k·Fⱼ → Fᵢ)</option>
-                                <option value="swap">Intercambiar filas (Fᵢ ↔ Fⱼ)</option>
-                            </select>
-                        </div>
-                        <div id="gjOperationInputs"></div> <!-- Inputs for operation params here -->
-                        <div class="d-grid gap-2 mt-2">
-                            <button class="btn btn-sm btn-success" onclick="app.gaussJordan.applyOperation()">Aplicar Operación</button>
-                            <button class="btn btn-sm btn-warning" onclick="app.gaussJordan.undoOperation()">Deshacer Última</button>
-                        </div>
-                    </div>
-                </div>
-            `,
 
-            gaussJordanMainPanel: () => `
-                <div class="card gj-card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Matriz Original (A₀)</h5>
-                        <div id="gjAugmentedMatrix" class="gj-matrix">Sistema no cargado.</div>
-                    </div>
-                </div>
-                <div class="card gj-card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Matriz Actual Transformada</h5>
-                        <div id="gjCurrentMatrix" class="gj-matrix">Aplique operaciones.</div>
-                    </div>
-                </div>
-                <div class="card gj-card">
-                    <div class="card-body">
-                        <h5 class="card-title">Historial de Operaciones</h5>
-                        <div id="gjOperationHistory" class="gj-history">No hay operaciones realizadas.</div>
-                    </div>
-                </div>
-            `,
+            evaluateRationalFunction() {
+                const numerator = document.getElementById('numeratorExpression').value;
+                const denominator = document.getElementById('denominatorExpression').value;
+                const xValue = parseFloat(document.getElementById('xValueRational').value);
+                const precision = parseInt(document.getElementById('rationalPrecision').value);
+                const resultElement = document.getElementById('rationalResult');
 
-            gaussJordan: { // Este objeto contendrá todo lo específico de Gauss-Jordan
-                rows: 3,
-                cols: 3,
-                matrix: [],
-                history: [],
-                steps: [],
+                if (!numerator || !denominator) {
+                    resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error: Por favor ingresa expresiones válidas para el numerador y el denominador.</div>';
+                    return;
+                }
+                if (isNaN(xValue)) {
+                    resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error: Por favor ingresa un valor numérico válido para x.</div>';
+                    return;
+                }
 
-                init() {
-                    this.rows = parseInt(document.getElementById('gjRows').value) || 3;
-                    this.cols = parseInt(document.getElementById('gjCols').value) || 3;
-                    this.renderMatrixInputs();
-                    this.renderOperationParameterInputs();
-                    const opTypeSelect = document.getElementById('gjOperationType');
-                    if (opTypeSelect) {
-                        opTypeSelect.addEventListener('change', () => this.renderOperationParameterInputs());
+                try {
+                    const parsedNumerator = math.parse(numerator);
+                    const parsedDenominator = math.parse(denominator);
+                    const compiledNumerator = parsedNumerator.compile();
+                    const compiledDenominator = parsedDenominator.compile();
+                    const numeratorValue = compiledNumerator.evaluate({ x: xValue });
+                    const denominatorValue = compiledDenominator.evaluate({ x: xValue });
+
+                    if (denominatorValue === 0) {
+                        resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error: División por cero.</div>';
+                        return;
                     }
-                    this.updateUI();
-                },
+
+                    const result = numeratorValue / denominatorValue;
+                    resultElement.innerHTML = `
+                        <div class="font-medium mb-2">Para x = ${xValue}:</div>
+                        <div class="text-lg">f(x) = ${result.toFixed(precision)}</div>
+                    `;
+                } catch (error) {
+                    resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error: Las expresiones no se pudieron evaluar. Por favor verifica la sintaxis.</div>';
+                }
+            },
+
+            generateTable() {
+                const expression = document.getElementById('tableFunctionExpression').value;
+                const startInterval = parseFloat(document.getElementById('startInterval').value);
+                const endInterval = parseFloat(document.getElementById('endInterval').value);
+                const stepSize = parseFloat(document.getElementById('stepSize').value);
+                const precision = parseInt(document.getElementById('tablePrecision').value);
+                const resultElement = document.getElementById('tableResult');
+
+                if (!expression) {
+                    resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error: Por favor ingresa una expresión válida.</div>';
+                    return;
+                }
+                if (isNaN(startInterval) || isNaN(endInterval) || isNaN(stepSize) || stepSize <= 0) {
+                    resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error: Por favor ingresa valores numéricos válidos para el intervalo y el tamaño del paso.</div>';
+                    return;
+                }
+
+                try {
+                    const parsedExpression = math.parse(expression);
+                    const compiledExpression = parsedExpression.compile();
+                    let tableContent = `
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="border px-4 py-2">x</th>
+                                    <th class="border px-4 py-2">f(x)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    for (let x = startInterval; x <= endInterval; x += stepSize) {
+                        const xRounded = parseFloat(x.toFixed(precision));
+                        const y = compiledExpression.evaluate({ x: xRounded });
+                        const yRounded = parseFloat(y.toFixed(precision));
+                        
+                        tableContent += `
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <td class="border px-4 py-2 text-center">${xRounded}</td>
+                                <td class="border px-4 py-2 text-center">${yRounded}</td>
+                            </tr>
+                        `;
+                    }
+
+                    tableContent += `</tbody></table>`;
+                    resultElement.innerHTML = tableContent;
+                } catch (error) {
+                    resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error: La expresión no se pudo evaluar. Por favor verifica la sintaxis.</div>';
+                }
+            },
+
+            solveQuadraticEquation() {
+                const a = parseFloat(document.getElementById('coefficientA').value);
+                const b = parseFloat(document.getElementById('coefficientB').value);
+                const c = parseFloat(document.getElementById('coefficientC').value);
+                const precision = parseInt(document.getElementById('quadraticPrecision').value);
+                const discriminantResult = document.getElementById('discriminantResult');
+                const sqrtDiscriminantResult = document.getElementById('sqrtDiscriminantResult');
+                const vertexResult = document.getElementById('vertexResult');
+                const quadraticRootsResult = document.getElementById('quadraticRootsResult');
+
+                if (isNaN(a) || isNaN(b) || isNaN(c)) {
+                    discriminantResult.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error: Por favor ingresa valores numéricos válidos para A, B y C.</div>';
+                    sqrtDiscriminantResult.textContent = '';
+                    vertexResult.textContent = '';
+                    quadraticRootsResult.textContent = '';
+                    return;
+                }
+
+                if (a === 0) {
+                    discriminantResult.innerHTML = '<div class="text-yellow-500"><i class="fas fa-exclamation-triangle mr-2"></i> Advertencia: El coeficiente A no puede ser cero para una ecuación cuadrática.</div>';
+                    sqrtDiscriminantResult.textContent = '';
+                    vertexResult.textContent = '';
+                    
+                    // Resolver ecuación lineal si A = 0
+                    if (b !== 0) {
+                        const root = -c / b;
+                        quadraticRootsResult.innerHTML = `
+                            <div class="font-medium">Ecuación lineal:</div>
+                            <div>x = ${root.toFixed(precision)}</div>
+                        `;
+                    } else {
+                        quadraticRootsResult.innerHTML = '<div class="text-yellow-500"><i class="fas fa-exclamation-triangle mr-2"></i> Ecuación indeterminada: Ambos coeficientes A y B son cero.</div>';
+                    }
+                    return;
+                }
+
+                const discriminant = b * b - 4 * a * c;
+                discriminantResult.innerHTML = `
+                    <div class="font-medium">Discriminante (D):</div>
+                    <div>D = ${discriminant.toFixed(precision)}</div>
+                `;
+
+                if (discriminant > 0) {
+                    const sqrtD = Math.sqrt(discriminant);
+                    sqrtDiscriminantResult.innerHTML = `
+                        <div class="font-medium">Raíz del discriminante:</div>
+                        <div>√D = ${sqrtD.toFixed(precision)}</div>
+                    `;
+                    const root1 = (-b + sqrtD) / (2 * a);
+                    const root2 = (-b - sqrtD) / (2 * a);
+                    quadraticRootsResult.innerHTML = `
+                        <div class="font-medium">Raíces reales:</div>
+                        <div>x₁ = ${root1.toFixed(precision)}</div>
+                        <div>x₂ = ${root2.toFixed(precision)}</div>
+                    `;
+                } else if (discriminant === 0) {
+                    const root = -b / (2 * a);
+                    sqrtDiscriminantResult.innerHTML = `
+                        <div class="font-medium">Raíz del discriminante:</div>
+                        <div>√D = 0</div>
+                    `;
+                    quadraticRootsResult.innerHTML = `
+                        <div class="font-medium">Raíz única:</div>
+                        <div>x = ${root.toFixed(precision)}</div>
+                    `;
+                } else {
+                    const sqrtD = Math.sqrt(-discriminant);
+                    sqrtDiscriminantResult.innerHTML = `
+                        <div class="font-medium">Raíz del discriminante:</div>
+                        <div>√D = i · ${sqrtD.toFixed(precision)}</div>
+                    `;
+                    const realPart = -b / (2 * a);
+                    const imaginaryPart = sqrtD / (2 * a);
+                    quadraticRootsResult.innerHTML = `
+                        <div class="font-medium">Raíces complejas:</div>
+                        <div>x₁ = ${realPart.toFixed(precision)} + i · ${imaginaryPart.toFixed(precision)}</div>
+                        <div>x₂ = ${realPart.toFixed(precision)} - i · ${imaginaryPart.toFixed(precision)}</div>
+                    `;
+                }
+
+                const vertexX = -b / (2 * a);
+                const vertexY = (4 * a * c - b * b) / (4 * a);
+                vertexResult.innerHTML = `
+                    <div class="font-medium">Vértice:</div>
+                    <div>V(${vertexX.toFixed(precision)}, ${vertexY.toFixed(precision)})</div>
+                `;
+            },
+        };
+
+        const trigo1 = {
+            calculateTrig() {
+                const angle = parseFloat(document.getElementById('angle').value);
+                const functionType = document.getElementById('trigFunction').value;
+                const precision = parseInt(document.getElementById('trigPrecision').value);
+                const resultElement = document.getElementById('trigResult');
+
+                if (isNaN(angle)) {
+                    resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Por favor, ingresa un ángulo válido.</div>';
+                    return;
+                }
+
+                let result;
+                const radians = angle * (Math.PI / 180);
+                let functionName = '';
                 
-                updateDimensions() {
-                    this.rows = parseInt(document.getElementById('gjRows').value);
-                    this.cols = parseInt(document.getElementById('gjCols').value);
-                    this.renderMatrixInputs();
-                    this.renderOperationParameterInputs();
-                    this.matrix = [];
-                    this.steps = [];
-                    this.history = [];
-                    this.updateUI();
-                },
+                try {
+                    switch (functionType) {
+                        case 'sin':
+                            result = Math.sin(radians);
+                            functionName = 'Seno';
+                            break;
+                        case 'cos':
+                            result = Math.cos(radians);
+                            functionName = 'Coseno';
+                            break;
+                        case 'tan':
+                            result = Math.tan(radians);
+                            functionName = 'Tangente';
+                            break;
+                        case 'csc':
+                            result = 1 / Math.sin(radians);
+                            functionName = 'Cosecante';
+                            break;
+                        case 'sec':
+                            result = 1 / Math.cos(radians);
+                            functionName = 'Secante';
+                            break;
+                        case 'cot':
+                            result = 1 / Math.tan(radians);
+                            functionName = 'Cotangente';
+                            break;
+                        default:
+                            resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Función no válida.</div>';
+                            return;
+                    }
+                    
+                    if (!isFinite(result)) {
+                        resultElement.innerHTML = `<div class="text-yellow-500"><i class="fas fa-exclamation-triangle mr-2"></i> ${functionName}(${angle}°) = Indefinido</div>`;
+                    } else {
+                        resultElement.innerHTML = `<div class="text-xl">${functionName}(${angle}°) = ${result.toFixed(precision)}</div>`;
+                    }
+                } catch (error) {
+                    resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error en el cálculo.</div>';
+                }
+            },
+        };
 
-                renderMatrixInputs() {
-                    const container = document.getElementById('gjMatrixInputs');
-                    if (!container) return;
+        const g_Geogebra = {
+            // Placeholder for Geogebra functionalities
+        };
+
+        const Determinantes = {
+            solveSystem2x2() {
+                const a11 = parseFloat(document.getElementById('system2x2A11').value);
+                const a12 = parseFloat(document.getElementById('system2x2A12').value);
+                const b1 = parseFloat(document.getElementById('system2x2B1').value);
+                const a21 = parseFloat(document.getElementById('system2x2A21').value);
+                const a22 = parseFloat(document.getElementById('system2x2A22').value);
+                const b2 = parseFloat(document.getElementById('system2x2B2').value);
+                const precision = parseInt(document.getElementById('system2x2Precision').value);
+                const resultElement = document.getElementById('systemResult2x2');
+
+                if (isNaN(a11) || isNaN(a12) || isNaN(b1) || isNaN(a21) || isNaN(a22) || isNaN(b2)) {
+                    resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error: Por favor ingresa todos los valores numéricos del sistema.</div>';
+                    return;
+                }
+
+                const matrixA = [
+                    [a11, a12],
+                    [a21, a22]
+                ];
+                const matrixB = [b1, b2];
+                const det = (a11 * a22) - (a12 * a21);
+
+                try {
+                    if (Math.abs(det) < 1e-10) {
+                        resultElement.innerHTML = '<div class="text-yellow-500"><i class="fas fa-exclamation-triangle mr-2"></i> El sistema no tiene una solución única (el determinante es cero).</div>';
+                    } else {
+                        const solution = math.lusolve(matrixA, matrixB);
+                        resultElement.innerHTML = `
+                            <div class="font-medium">Solución del sistema:</div>
+                            <div class="grid grid-cols-2 gap-4 mt-2">
+                                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-800">
+                                    <span class="font-medium">x₁ = </span>
+                                    <span>${solution[0][0].toFixed(precision)}</span>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-800">
+                                    <span class="font-medium">x₂ = </span>
+                                    <span>${solution[1][0].toFixed(precision)}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error: No se pudo resolver el sistema.</div>';
+                }
+            },
+
+            calculateDeterminant2x2() {
+                const a11 = parseFloat(document.getElementById('matrixA11').value);
+                const a12 = parseFloat(document.getElementById('matrixA12').value);
+                const a21 = parseFloat(document.getElementById('matrixA21').value);
+                const a22 = parseFloat(document.getElementById('matrixA22').value);
+                const precision = parseInt(document.getElementById('determinant2x2Precision').value);
+                const resultElement = document.getElementById('determinantResult2x2');
+
+                if (isNaN(a11) || isNaN(a12) || isNaN(a21) || isNaN(a22)) {
+                    resultElement.innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-circle mr-2"></i> Error: Por favor ingresa todos los valores numéricos de la matriz.</div>';
+                    return;
+                }
+
+                const determinant = (a11 * a22) - (a12 * a21);
+                
+                const calcHtml = `
+                    <div class="font-medium mb-2">Cálculo:</div>
+                    <div class="mb-2">(${a11} × ${a22}) - (${a12} × ${a21})</div>
+                    <div class="mb-2">${a11 * a22} - ${a12 * a21}</div>
+                `;
+                
+                resultElement.innerHTML = `
+                    ${calcHtml}
+                    <div class="text-xl font-medium mt-3">Determinante = ${determinant.toFixed(precision)}</div>
+                `;
+            },
+        };
+
+        function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b > 0) {
+                [a, b] = [b, a % b];
+            }
+            return a;
+        }
+
+        function Fraction(num = 0, den = 1) {
+            if (den === 0) return { num: 0, den: 1 };
+            const d = gcd(Math.abs(num), Math.abs(den));
+            if (den < 0) {
+                num = -num;
+                den = -den;
+            }
+            return { num: Math.floor(num / d), den: Math.floor(den / d) };
+        }
+
+        function parseFraction(str) {
+            if (!str || str === '0') return Fraction(0, 1);
+            if (str.includes('/')) {
+                const [num, den] = str.split('/').map(x => parseInt(x.trim()));
+                return Fraction(num || 0, den || 1);
+            }
+            const num = parseFloat(str);
+            if (isNaN(num)) return Fraction(0, 1);
+            if (Number.isInteger(num)) return Fraction(num, 1);
+            const precision = 1000000;
+            return Fraction(Math.round(num * precision), precision);
+        }
+
+        function formatFraction(frac) {
+            if (frac.den === 1) return frac.num.toString();
+            return `\\frac{${frac.num}}{${frac.den}}`;
+        }
+
+        function multiplyFractions(f1, f2) {
+            return Fraction(f1.num * f2.num, f1.den * f2.den);
+        }
+
+        function addFractions(f1, f2) {
+            const num = f1.num * f2.den + f2.num * f1.den;
+            const den = f1.den * f2.den;
+            return Fraction(num, den);
+        }
+
+        const matrices = {
+            generateInputs() {
+                ['A', 'B', 'C'].forEach(matrix => {
+                    const rows = parseInt(document.getElementById(`rows${matrix}`).value);
+                    const cols = parseInt(document.getElementById(`cols${matrix}`).value);
+                    const container = document.getElementById(`matrix${matrix}`);
                     container.innerHTML = '';
-                    const table = document.createElement('div');
-                    table.style.display = 'grid';
-                    table.style.gridTemplateColumns = `repeat(${this.cols + 1}, auto)`;
-                    table.style.gap = '3px';
-
-                    for(let i = 0; i < this.rows; i++) {
-                        for(let j = 0; j <= this.cols; j++) {
+                    
+                    const table = document.createElement('table');
+                    table.className = 'matrix-table mx-auto';
+                    
+                    for (let i = 0; i < rows; i++) {
+                        const tr = table.insertRow();
+                        for (let j = 0; j < cols; j++) {
+                            const td = tr.insertCell();
                             const input = document.createElement('input');
-                            input.type = 'text'; // MODIFICADO: para permitir fracciones
-                            input.className = 'form-control form-control-sm matrix-input text-center'; 
-                            input.value = (i === j && i < this.cols) ? '1' : '0';
-                            if (j === this.cols) input.value = i+1;
-                            input.id = `gj_A_${i}_${j}`;
-                            table.appendChild(input);
+                            input.type = 'text';
+                            input.className = 'w-20 h-10 text-center';
+                            input.id = `${matrix}_${i}_${j}`;
+                            input.value = '0';
+                            td.appendChild(input);
                         }
                     }
                     container.appendChild(table);
-                },
+                });
+            },
 
-                generateMatrix() {
-                    this.matrix = [];
-                    for(let i = 0; i < this.rows; i++) {
-                        const currentRow = [];
-                        for(let j = 0; j <= this.cols; j++) {
-                            const inputElement = document.getElementById(`gj_A_${i}_${j}`);
-                            if (inputElement) {
-                                // MODIFICADO: Usar app.parseFraction
-                                currentRow.push(app.parseFraction(inputElement.value)); 
-                            } else {
-                                console.error(`Input element gj_A_${i}_${j} not found!`);
-                                currentRow.push(app.Fraction(0,1)); 
+            validateDimensions() {
+                const rowsA = parseInt(document.getElementById('rowsA').value);
+                const colsA = parseInt(document.getElementById('colsA').value);
+                const rowsB = parseInt(document.getElementById('rowsB').value);
+                const colsB = parseInt(document.getElementById('colsB').value);
+                const rowsC = parseInt(document.getElementById('rowsC').value);
+                const colsC = parseInt(document.getElementById('colsC').value);
+
+                if (colsA !== rowsB || colsB !== rowsC) {
+                    alert('Las dimensiones no son compatibles para multiplicación de matrices');
+                    return false;
+                }
+                return true;
+            },
+
+            getMatrix(id) {
+                const rows = parseInt(document.getElementById(`rows${id}`).value);
+                const cols = parseInt(document.getElementById(`cols${id}`).value);
+                const matrix = [];
+                
+                for (let i = 0; i < rows; i++) {
+                    matrix[i] = [];
+                    for (let j = 0; j < cols; j++) {
+                        const input = document.getElementById(`${id}_${i}_${j}`);
+                        matrix[i][j] = parseFraction(input.value);
+                    }
+                }
+                return matrix;
+            },
+
+            multiply(A, B) {
+                const result = [];
+                for (let i = 0; i < A.length; i++) {
+                    result[i] = [];
+                    for (let j = 0; j < B[0].length; j++) {
+                        result[i][j] = Fraction(0, 1);
+                        for (let k = 0; k < A[0].length; k++) {
+                            const prod = multiplyFractions(A[i][k], B[k][j]);
+                            result[i][j] = addFractions(result[i][j], prod);
+                        }
+                    }
+                }
+                return result;
+            },
+
+            formatMatrix(matrix) {
+                return `\\begin{pmatrix}
+                    ${matrix.map(row => row.map(val => formatFraction(val)).join(' & ')).join(' \\\\ ')}
+                \\end{pmatrix}`;
+            },
+
+            calculate() {
+                if (!this.validateDimensions()) return;
+
+                const A = this.getMatrix('A');
+                const B = this.getMatrix('B');
+                const C = this.getMatrix('C');
+                
+                const AB = this.multiply(A, B);
+                const result = this.multiply(AB, C);
+
+                document.getElementById('matrixResult').innerHTML = `
+                    <div class="card mt-6">
+                        <div class="card-header">Resultados</div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h4 class="font-medium mb-2">Producto intermedio (AB):</h4>
+                                <div class="matrix-display p-4 bg-gray-50 rounded-lg dark:bg-gray-800">${this.formatMatrix(AB)}</div>
+                            </div>
+                            <div>
+                                <h4 class="font-medium mb-2">Resultado final (ABC):</h4>
+                                <div class="matrix-display p-4 bg-gray-50 rounded-lg dark:bg-gray-800">${this.formatMatrix(result)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, "matrixResult"]);
+            }
+        };
+
+        const gauss = {
+            rows: 2,
+            cols: 2,
+            matrix: [],
+            history: [],
+            steps: [],
+
+            updateMatrix() {
+                this.rows = parseInt(document.getElementById('gaussRows').value);
+                this.cols = parseInt(document.getElementById('gaussCols').value);
+                this.renderInputs();
+                this.renderOperationInputs();
+            },
+
+            renderInputs() {
+                const container = document.getElementById('gaussInputs');
+                container.innerHTML = '';
+                
+                const table = document.createElement('table');
+                table.className = 'mx-auto mb-4';
+                
+                for (let i = 0; i < this.rows; i++) {
+                    const row = table.insertRow();
+                    for (let j = 0; j < this.cols + 1; j++) {
+                        const cell = row.insertCell();
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.className = 'w-16 h-10 text-center m-1';
+                        input.id = `gauss_${i}_${j}`;
+                        input.value = '0';
+                        if (j === this.cols) {
+                            // Agregar divisor visual para la columna aumentada
+                            cell.style.borderLeft = '2px solid #aaa';
+                        }
+                        cell.appendChild(input);
+                    }
+                }
+                container.appendChild(table);
+            },
+
+            generate() {
+                this.matrix = [];
+                this.steps = [];
+                this.history = [];
+
+                for (let i = 0; i < this.rows; i++) {
+                    this.matrix[i] = [];
+                    for (let j = 0; j < this.cols + 1; j++) {
+                        const input = document.getElementById(`gauss_${i}_${j}`);
+                        this.matrix[i][j] = parseFraction(input.value);
+                    }
+                }
+
+                this.steps.push(JSON.parse(JSON.stringify(this.matrix)));
+                this.updateUI();
+            },
+
+            formatSystem() {
+                return `\\begin{cases}
+                    ${this.matrix.map(row => {
+                        let terms = [];
+                        for (let j = 0; j < this.cols; j++) {
+                            const coef = row[j];
+                            if (coef.num !== 0) {
+                                let term = '';
+                                if (j > 0 && coef.num > 0) term += '+';
+                                if (coef.num === 1 && coef.den === 1) {
+                                    if (j === 0) term += ''; else term += '+';
+                                } else if (coef.num === -1 && coef.den === 1) {
+                                    term += '-';
+                                } else {
+                                    term += formatFraction(coef);
+                                }
+                                if (!(coef.num === 0 && coef.den === 1)) {
+                                    term += `x_{${j + 1}}`;
+                                }
+                                terms.push(term);
                             }
                         }
-                        this.matrix.push(currentRow);
-                    }
-                    this.steps = [JSON.parse(JSON.stringify(this.matrix))]; 
-                    this.history = [];
-                    this.updateUI();
-                },
+                        if (terms.length === 0) terms.push('0');
+                        return `${terms.join(' ')} = ${formatFraction(row[this.cols])}`;
+                    }).join(' \\\\ ')}
+                \\end{cases}`;
+            },
 
-                applyOperation() {
-                    if (this.matrix.length === 0) {
-                        alert("Primero genere o cargue una matriz.");
-                        return;
-                    }
-                    const operationType = document.getElementById('gjOperationType').value;
-                    const matrixBeforeOp = JSON.parse(JSON.stringify(this.matrix));
-                    let opDescription = "";
+            formatMatrix() {
+                // Mostrar la matriz aumentada con una línea vertical separadora
+                return `$$\\left(\\begin{array}{${Array(this.cols).fill('c').join('')}|c}
+                    ${this.matrix.map(row => row.map(val => formatFraction(val)).join(' & ')).join(' \\\\ ')}
+                \\end{array}\\right)$$`;
+            },
 
-                    try {
-                        let row1_idx, row2_idx, scalar_val_str, scalar_val, target_idx, source_idx, multiplier_val_str, multiplier_val;
-
-                        switch(operationType) {
-                            case 'multiply':
-                                row1_idx = parseInt(document.getElementById('gjOpRow1').value);
-                                scalar_val_str = document.getElementById('gjOpScalar').value;
-                                scalar_val = app.parseFraction(scalar_val_str); // MODIFICADO
-                                if (isNaN(row1_idx)) throw new Error("Seleccione una fila.");
-                                if (scalar_val.num === 0 && scalar_val.den === 1) {
-                                     if (!confirm("Multiplicar una fila por cero resultará en una fila de ceros. ¿Continuar?")) return;
-                                }
-                                if (scalar_val.den === 0) throw new Error("Escalar no puede tener denominador cero.");
-
-                                // MODIFICADO: usar app.multiplyFractions
-                                this.matrix[row1_idx] = this.matrix[row1_idx].map(f => app.multiplyFractions(f, scalar_val));
-                                opDescription = `F_{${row1_idx + 1}} \\leftarrow ${app.formatFractionForLatex(scalar_val)} \\cdot F_{${row1_idx + 1}}`;
-                                break;
-                                
-                            case 'add':
-                                target_idx = parseInt(document.getElementById('gjOpTargetRow').value);
-                                source_idx = parseInt(document.getElementById('gjOpSourceRow').value);
-                                multiplier_val_str = document.getElementById('gjOpMultiplier').value;
-                                multiplier_val = app.parseFraction(multiplier_val_str); // MODIFICADO
-                                if (isNaN(target_idx) || isNaN(source_idx)) throw new Error("Seleccione fila fuente y destino.");
-                                if (target_idx === source_idx) throw new Error("Fila fuente y destino no pueden ser la misma para esta operación con k.");
-                                if (multiplier_val.den === 0) throw new Error("Multiplicador no puede tener denominador cero.");
-                                
-                                // MODIFICADO: usar app.addFractions y app.multiplyFractions
-                                this.matrix[target_idx] = this.matrix[target_idx].map((val, col_idx) => 
-                                    app.addFractions(val, app.multiplyFractions(this.matrix[source_idx][col_idx], multiplier_val))
-                                );
-                                let k_formatted = app.formatFractionForLatex(multiplier_val);
-                                if (multiplier_val.num < 0) k_formatted = `(${k_formatted})`;
-                                opDescription = `F_{${target_idx + 1}} \\leftarrow F_{${target_idx + 1}} + ${k_formatted} \\cdot F_{${source_idx + 1}}`;
-                                break;
-                                
-                            case 'swap':
-                                row1_idx = parseInt(document.getElementById('gjOpRow1_swap').value);
-                                row2_idx = parseInt(document.getElementById('gjOpRow2_swap').value);
-                                if (isNaN(row1_idx) || isNaN(row2_idx)) throw new Error("Seleccione dos filas para intercambiar.");
-                                if (row1_idx === row2_idx) throw new Error("Seleccione filas diferentes para intercambiar.");
-
-                                [this.matrix[row1_idx], this.matrix[row2_idx]] = [this.matrix[row2_idx], this.matrix[row1_idx]];
-                                opDescription = `F_{${row1_idx + 1}} \\leftrightarrow F_{${row2_idx + 1}}`;
-                                break;
-                        }
-                        
-                        this.steps.push(JSON.parse(JSON.stringify(this.matrix)));
-                        this.history.push({ text: opDescription, matrixBefore: matrixBeforeOp, matrixAfter: JSON.parse(JSON.stringify(this.matrix)) });
-                        this.updateUI();
-
-                    } catch (e) {
-                        alert("Error en la operación: " + e.message);
-                    }
-                },
-
-                undoOperation() {
-                    if (this.steps.length > 1) {
-                        this.steps.pop();
-                        this.matrix = JSON.parse(JSON.stringify(this.steps[this.steps.length - 1]));
-                        this.history.pop();
-                        this.updateUI();
-                    } else {
-                        alert("No hay operaciones para deshacer o está en el estado inicial.");
-                    }
-                },
-
-                renderOperationParameterInputs() {
-                    const container = document.getElementById('gjOperationInputs');
-                    if (!container) return;
-                    container.innerHTML = '';
-                    const type = document.getElementById('gjOperationType').value;
-                    let rowOptionsHTML = "";
-                    for (let i = 0; i < this.rows; i++) {
-                        rowOptionsHTML += `<option value="${i}">Fila ${i + 1}</option>`;
-                    }
-                    
-                    if (type === 'multiply') {
-                        container.innerHTML = `
-                            <div class="mb-2">
-                                <label for="gjOpRow1" class="form-label form-label-sm">Fila (Fᵢ):</label>
-                                <select id="gjOpRow1" class="form-select form-select-sm">${rowOptionsHTML}</select>
-                            </div>
-                            <div class="mb-2">
-                                <label for="gjOpScalar" class="form-label form-label-sm">Escalar (k, ej: 2, -1/3):</label>
-                                <input type="text" id="gjOpScalar" class="form-control form-control-sm" value="1"> <!-- MODIFICADO: type="text" -->
-                            </div>`;
-                    } else if (type === 'add') {
-                        container.innerHTML = `
-                            <div class="mb-2">
-                                <label for="gjOpTargetRow" class="form-label form-label-sm">Fila Destino (Fᵢ):</label>
-                                <select id="gjOpTargetRow" class="form-select form-select-sm">${rowOptionsHTML}</select>
-                            </div>
-                            <div class="mb-2">
-                                <label for="gjOpMultiplier" class="form-label form-label-sm">Multiplicador (k, ej: 1, 3/2):</label>
-                                <input type="text" id="gjOpMultiplier" class="form-control form-control-sm" value="1"> <!-- MODIFICADO: type="text" -->
-                            </div>
-                            <div class="mb-2">
-                                <label for="gjOpSourceRow" class="form-label form-label-sm">Fila Fuente (Fⱼ):</label>
-                                <select id="gjOpSourceRow" class="form-select form-select-sm">${rowOptionsHTML}</select>
-                            </div>`;
-                    } else if (type === 'swap') {
-                        container.innerHTML = `
-                            <div class="mb-2">
-                                <label for="gjOpRow1_swap" class="form-label form-label-sm">Fila 1 (Fᵢ):</label>
-                                <select id="gjOpRow1_swap" class="form-select form-select-sm">${rowOptionsHTML}</select>
-                            </div>
-                            <div class="mb-2">
-                                <label for="gjOpRow2_swap" class="form-label form-label-sm">Fila 2 (Fⱼ):</label>
-                                <select id="gjOpRow2_swap" class="form-select form-select-sm">${rowOptionsHTML}</select>
-                            </div>`;
-                    }
-                },
+            updateUI() {
+                document.getElementById('currentSystem').innerHTML = `${this.formatSystem()}`;
+                document.getElementById('augmentedMatrix').innerHTML = `${this.formatMatrix()}`;
                 
-                matrixToLatex(matrixArray) { // MODIFICADO: Usa app.formatFractionForLatex
-                    if (!matrixArray || matrixArray.length === 0) return '\\begin{pmatrix} \\text{No hay datos} \\end{pmatrix}';
-                    if (!Array.isArray(matrixArray[0])) return '\\begin{pmatrix} \\text{Datos incorrectos} \\end{pmatrix}';
+                // Nuevo enfoque para mostrar el historial con LaTeX renderizado correctamente
+                if (this.history.length > 0) {
+                    let historyHTML = '';
+                    for (let i = 0; i < this.history.length; i++) {
+                        historyHTML += `<div class="mb-2 flex items-start">
+                            <span class="font-medium mr-2">${i+1}.</span> 
+                            <div class="inline-block">$$${this.history[i]}$$</div>
+                        </div>`;
+                    }
+                    document.getElementById('operationHistory').innerHTML = historyHTML;
+                } else {
+                    document.getElementById('operationHistory').innerHTML = 'No hay operaciones realizadas';
+                }
+                
+                // Forzar a MathJax a reprocesar todo el contenido
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+            },
 
-                    let latex = '\\begin{pmatrix}\n';
-                    matrixArray.forEach((row, rowIndex) => {
-                        if (!Array.isArray(row)) {
-                            latex += `\\text{Fila ${rowIndex+1} incorrecta}`;
-                        } else {
-                            latex += row.map(f_obj => app.formatFractionForLatex(f_obj)).join(' & ');
-                        }
-                        if (rowIndex < matrixArray.length - 1) {
-                            latex += ' \\\\ \n';
-                        }
+            renderOperationInputs() {
+                const container = document.getElementById('operationInputs');
+                const type = document.getElementById('operationType').value;
+                
+                let html = '';
+                if (type === 'multiply') {
+                    html = `
+                        <label class="block mb-2 text-sm font-medium">Fila a multiplicar:</label>
+                        <select class="mb-3" id="multRow">
+                            ${Array.from({length: this.rows}, (_, i) => 
+                                `<option value="${i}">Fila ${i + 1}</option>`
+                            ).join('')}
+                        </select>
+                        <label class="block mb-2 text-sm font-medium">Escalar:</label>
+                        <input type="text" id="scalar" value="1" placeholder="Número o fracción">
+                    `;
+                } else if (type === 'add') {
+                    html = `
+                        <label class="block mb-2 text-sm font-medium">Fila origen:</label>
+                        <select class="mb-3" id="sourceRow">
+                            ${Array.from({length: this.rows}, (_, i) => 
+                                `<option value="${i}">Fila ${i + 1}</option>`
+                            ).join('')}
+                        </select>
+                        <label class="block mb-2 text-sm font-medium">Fila destino:</label>
+                        <select class="mb-3" id="targetRow">
+                            ${Array.from({length: this.rows}, (_, i) => 
+                                `<option value="${i}">Fila ${i + 1}</option>`
+                            ).join('')}
+                        </select>
+                        <label class="block mb-2 text-sm font-medium">Multiplicador:</label>
+                        <input type="text" id="multiplier" value="1" placeholder="Número o fracción">
+                    `;
+                } else if (type === 'swap') {
+                    html = `
+                        <label class="block mb-2 text-sm font-medium">Primera fila:</label>
+                        <select class="mb-3" id="row1">
+                            ${Array.from({length: this.rows}, (_, i) => 
+                                `<option value="${i}">Fila ${i + 1}</option>`
+                            ).join('')}
+                        </select>
+                        <label class="block mb-2 text-sm font-medium">Segunda fila:</label>
+                        <select class="mb-3" id="row2">
+                            ${Array.from({length: this.rows}, (_, i) => 
+                                `<option value="${i}">Fila ${i + 1}</option>`
+                            ).join('')}
+                        </select>
+                    `;
+                }
+                container.innerHTML = html;
+            },
+
+            applyOperation() {
+                const type = document.getElementById('operationType').value;
+                
+                if (type === 'multiply') {
+                    const row = parseInt(document.getElementById('multRow').value);
+                    const scalar = parseFraction(document.getElementById('scalar').value);
+                    this.matrix[row] = this.matrix[row].map(val => multiplyFractions(val, scalar));
+                    this.history.push(`F_{${row + 1}} = ${formatFraction(scalar)} \\cdot F_{${row + 1}}`);
+                } 
+                else if (type === 'add') {
+                    const sourceRow = parseInt(document.getElementById('sourceRow').value);
+                    const targetRow = parseInt(document.getElementById('targetRow').value);
+                    const multiplier = parseFraction(document.getElementById('multiplier').value);
+                    
+                    this.matrix[targetRow] = this.matrix[targetRow].map((val, idx) => {
+                        const term = multiplyFractions(this.matrix[sourceRow][idx], multiplier);
+                        return addFractions(val, term);
                     });
-                    return latex + '\n\\end{pmatrix}';
-                },
-
-                updateUI() {
-                    const currentMatrixDiv = document.getElementById('gjCurrentMatrix');
-                    const augmentedMatrixDiv = document.getElementById('gjAugmentedMatrix');
-                    const historyDiv = document.getElementById('gjOperationHistory');
-                    
-                    if (currentMatrixDiv) {
-                        currentMatrixDiv.innerHTML = (this.matrix && this.matrix.length > 0) 
-                        ? `$$ ${this.matrixToLatex(this.matrix)} $$` 
-                        : 'Aplique operaciones o genere una matriz.';
-                    }
-                    if (augmentedMatrixDiv) {
-                        augmentedMatrixDiv.innerHTML = (this.steps && this.steps.length > 0 && this.steps[0]) 
-                        ? `$$ ${this.matrixToLatex(this.steps[0])} $$` 
-                        : 'Sistema no cargado.';
-                    }
-                    
-                    if (historyDiv) {
-                        historyDiv.innerHTML = this.history.length > 0 
-                        ? this.history.map(h_entry => `<div>$ ${h_entry.text} $</div>`).join('') 
-                        : 'No hay operaciones realizadas.';
-                    }
-                    if (typeof MathJax !== "undefined" && MathJax.Hub) {
-                        MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('tool-content')]);
-                    }
+                    this.history.push(`F_{${targetRow + 1}} = F_{${targetRow + 1}} + ${formatFraction(multiplier)} \\cdot F_{${sourceRow + 1}}`);
                 }
-            } // End of app.gaussJordan
-        };    
-
-        // --- CÓDIGO ESPECÍFICO PARA DETERMINANTES POR OPERACIONES DE FILA ---
-        // Estas funciones parseNumberInputDet y formatNumberForLatexDet son específicas para Determinantes.
-        // Si quisieras unificarlo todo con app.Fraction, habría que adaptar más aquí.
-        let detMatrix = []; 
-        let detHistory = []; 
-        let detMatrixSize = 2;
-        let detOverallFactor = 1; 
-        
-        function initializeDeterminantTool() {
-            detMatrixSize = parseInt(document.getElementById('matrixSizeDet').value) || 2;
-            resetMatrixInternalDet();
-            updateDetOperationInputs(); 
-            renderDeterminantMatrix();
-            updateDetLatexProcessDisplay();
-            document.getElementById('undoDetButton').disabled = true;
-            document.getElementById('finalDeterminantResult').style.display = 'none';
-            document.getElementById('finalDeterminantResult').textContent = '';
-        }
-        
-        function resetMatrixInternalDet() { // Renombrado para evitar conflictos
-            detMatrix = Array(detMatrixSize).fill(null).map(() => Array(detMatrixSize).fill(0));
-            for(let i=0; i<detMatrixSize; i++) { 
-            for(let j=0; j<detMatrixSize; j++) { 
-                detMatrix[i][j] = (i===j)? i+1 : 0; 
-            } 
-            }
-            detHistory = [];
-            detOverallFactor = 1;
-        }
-        
-        function updateDetSize() {
-            const newSize = parseInt(document.getElementById('matrixSizeDet').value);
-            if (newSize >= 1 && newSize <= 6) {
-            detMatrixSize = newSize;
-            initializeDeterminantTool(); 
-            } else {
-            alert('El tamaño de la matriz debe estar entre 1 y 6.');
-            document.getElementById('matrixSizeDet').value = detMatrixSize; 
-            }
-        }
-        
-        function resetDetMatrix() {
-            initializeDeterminantTool();
-        }
-        
-        function renderDeterminantMatrix() {
-            const container = document.getElementById('matrixInputDet');
-            container.innerHTML = ''; 
-            
-            for (let i = 0; i < detMatrixSize; i++) {
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'matrix-row-det';
-            for (let j = 0; j < detMatrixSize; j++) {
-                const cellDiv = document.createElement('div');
-                cellDiv.className = 'matrix-cell-det';
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'number-input';
-                input.value = formatNumberForInputDet(detMatrix[i][j]); // Usa función específica
-                input.dataset.row = i;
-                input.dataset.col = j;
-                input.onchange = (e) => {
-                const r = parseInt(e.target.dataset.row);
-                const c = parseInt(e.target.dataset.col);
-                detMatrix[r][c] = parseNumberInputDet(e.target.value); // Usa función específica
-                document.getElementById('finalDeterminantResult').style.display = 'none'; 
-                };
-                cellDiv.appendChild(input);
-                rowDiv.appendChild(cellDiv);
-            }
-            container.appendChild(rowDiv);
-            }
-        }
-        
-        // Parsea la entrada para Determinantes (puede ser decimal o fraccion "a/b")
-        function parseNumberInputDet(inputStr) {
-            inputStr = String(inputStr).trim();
-            if (inputStr.includes('/')) {
-                const parts = inputStr.split('/');
-                const num = parseFloat(parts[0]);
-                const den = parseFloat(parts[1]);
-                if (!isNaN(num) && !isNaN(den) && den !== 0) {
-                    return num / den; // Se guarda como número decimal
-                }
-                return 0; 
-            }
-            const num = parseFloat(inputStr);
-            return isNaN(num) ? 0 : num;
-        }
-        
-        // Formatea número para input en Determinantes
-        function formatNumberForInputDet(num) { 
-            if (num === null || num === undefined) return '';
-            const tolerance = 1e-9;
-            for (let den = 1; den <= 32; den++) { 
-                if (Math.abs(num * den - Math.round(num * den)) < tolerance) {
-                    const numerator = Math.round(num * den);
-                    if (den === 1) return numerator.toString();
-                    return `${numerator}/${den}`;
-                }
-            }
-            return Number(num.toFixed(4)); 
-        }
-
-        // Formatea número para LaTeX en Determinantes (intenta convertir a fracción "bonita")
-        function formatNumberForLatexDet(num) {
-            if (num === null || num === undefined) return '0';
-            if (Number.isInteger(num)) return num.toString();
-            
-            const tolerance = 1.0E-9; 
-            let sign = num < 0 ? -1 : 1;
-            num = Math.abs(num);
-            
-            let h1 = 1, h2 = 0, k1 = 0, k2 = 1;
-            let b = num;
-            do {
-                let a = Math.floor(b);
-                let aux = h1; h1 = a * h1 + h2; h2 = aux;
-                aux = k1; k1 = a * k1 + k2; k2 = aux;
-                b = 1 / (b - a);
-            } while (Math.abs(num - h1 / k1) > num * tolerance && k1 <= 1000 && b !== Infinity); 
-
-            if (k1 !== 0 && k1 <= 1000 && Math.abs(num - h1 / k1) <= num * tolerance * Math.abs(num) ) { // Ajuste en tolerancia
-                if (k1 === 1) return (sign * h1).toString();
-                return (sign < 0 ? "-" : "") + `\\frac{${h1}}{${k1}}`;
-            }
-            
-            let decimalStr = (sign * num).toFixed(3); 
-            decimalStr = decimalStr.replace(/(\.\d*?[1-9])0+$/, '$1').replace(/\.0+$/, '');
-            return decimalStr;
-        }
-
-        function calculateRecursiveDeterminant(matrixToCalc) {
-            const n = matrixToCalc.length;
-            if (n === 0) return 0; 
-            if (n === 1) return matrixToCalc[0][0];
-            
-            let det = 0;
-            if (n === 2) {
-                return matrixToCalc[0][0] * matrixToCalc[1][1] - matrixToCalc[0][1] * matrixToCalc[1][0];
-            }
-
-            for (let j = 0; j < n; j++) {
-                const subMatrix = matrixToCalc.slice(1).map(row => 
-                    row.filter((_, colIndex) => colIndex !== j)
-                );
-                det += ((j % 2 === 0) ? 1 : -1) * matrixToCalc[0][j] * calculateRecursiveDeterminant(subMatrix);
-            }
-            return det;
-        }
-        
-        function updateDetLatexProcessDisplay(finalCalcResult = null) {
-            const processDiv = document.getElementById('determinantProcessDet');
-            let latexString = `\\begin{align*}\n`;
-            
-            if (detHistory.length === 0) {
-                const initialMatrixLatex = detMatrix.map(row => row.map(formatNumberForLatexDet).join(' & ')).join(' \\\\ ');
-                latexString += `\\det(A_0) &= \\begin{vmatrix} ${initialMatrixLatex} \\end{vmatrix}`;
-                if (finalCalcResult !== null) { 
-                    latexString += ` = ${formatNumberForLatexDet(finalCalcResult.value)} \\\\`;
-                }
-            } else {
-                const firstState = detHistory[0];
-                const initialMatrixLatex = firstState.matrixStateBefore.map(row => row.map(formatNumberForLatexDet).join(' & ')).join(' \\\\ ');
-                latexString += `\\det(A_0) &= \\begin{vmatrix} ${initialMatrixLatex} \\end{vmatrix} \\\\\n`;
-
-                detHistory.forEach((step, index) => {
-                    const matrixLatex = step.matrixStateAfter.map(row => row.map(formatNumberForLatexDet).join(' & ')).join(' \\\\ ');
-                    let factorDisplay = "";
-                    if (step.overallFactor !== 1) {
-                        factorDisplay = formatNumberForLatexDet(step.overallFactor);
-                        if (step.overallFactor < 0 && !factorDisplay.startsWith("(") && factorDisplay.includes("-")) { // Evitar doble parentesis si formatNumber ya lo hizo
-                             factorDisplay = `(${factorDisplay})`; 
-                        }
-                    }
-                    latexString += `&= ${factorDisplay} \\begin{vmatrix} ${matrixLatex} \\end{vmatrix} && \\text{${step.operationText}} \\\\\n`;
-                });
-            }
-
-            if (finalCalcResult !== null) {
-                if (detHistory.length > 0) { 
-                    const lastStepOverallFactor = detHistory[detHistory.length - 1].overallFactor;
-                    if (lastStepOverallFactor !== 1) {
-                    latexString += `&= ${formatNumberForLatexDet(lastStepOverallFactor)} \\cdot (${formatNumberForLatexDet(finalCalcResult.detOfCurrentMatrix)}) \\\\\n`;
-                    }
-                }
-                latexString += `&= ${formatNumberForLatexDet(finalCalcResult.value)}\n`;
-            }
-
-            latexString += `\\end{align*}`;
-            processDiv.innerHTML = latexString;
-            if (typeof MathJax !== "undefined" && MathJax.Hub) {
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, processDiv]);
-            }
-        }
-
-        function updateDetOperationInputs() {
-            const container = document.getElementById('operationInputsDet');
-            const operationType = document.getElementById('operationTypeDet').value;
-            container.innerHTML = ''; 
-            
-            const rowOptions = Array.from({length: detMatrixSize}, (_, i) => 
-                                        `<option value="${i}">Fila ${i + 1}</option>`
-            ).join('');
-            
-            let htmlContent = '';
-            switch (operationType) {
-                case 'swap':
-                htmlContent = `
-                <div><label for="row1_det">Fila 1:</label><select id="row1_det" class="operation-selector">${rowOptions}</select></div>
-                    <div><label for="row2_det">Fila 2:</label><select id="row2_det" class="operation-selector">${rowOptions}</select></div>
-                    `;
-                    break;
-                case 'multiply':
-                htmlContent = `
-                <div><label for="rowToMultiply_det">Fila a multiplicar:</label><select id="rowToMultiply_det" class="operation-selector">${rowOptions}</select></div>
-                    <div><label for="scalar_det">Escalar (k):</label><input type="text" id="scalar_det" class="number-input" placeholder="Ej: 2, -1/3, 0.5"></div>
-                    `;
-                    break;
-                case 'add': 
-                htmlContent = `
-                <div><label for="targetRow_det">Fila Destino (Fᵢ):</label><select id="targetRow_det" class="operation-selector">${rowOptions}</select></div>
-                <div><label for="addScalar_det">Escalar (k):</label><input type="text" id="addScalar_det" class="number-input" placeholder="Ej: 1, -2, 1/2"></div>
-                <div><label for="sourceRow_det">Fila Fuente (Fⱼ):</label><select id="sourceRow_det" class="operation-selector">${rowOptions}</select></div>
-                `;
-                break;
-            }
-            container.innerHTML = htmlContent;
-        }
-
-        function applyDetOperation() {
-            const operationType = document.getElementById('operationTypeDet').value;
-            let operationText = '';
-            let factorChange = 1; 
-            
-            const matrixBeforeOp = JSON.parse(JSON.stringify(detMatrix)); 
-            
-            try {
-                switch (operationType) {
-                case 'swap':
-                    const r1 = parseInt(document.getElementById('row1_det').value);
-                    const r2 = parseInt(document.getElementById('row2_det').value);
-                    if (r1 === r2) { alert("Seleccione filas diferentes para intercambiar."); return; }
-                    [detMatrix[r1], detMatrix[r2]] = [detMatrix[r2], detMatrix[r1]];
-                    operationText = `F_{${r1+1}} \\leftrightarrow F_{${r2+1}}`;
-                    factorChange = -1;
-                    break;
-                case 'multiply':
-                    const rowMul = parseInt(document.getElementById('rowToMultiply_det').value);
-                    const scalar = parseNumberInputDet(document.getElementById('scalar_det').value);
-                    if (isNaN(scalar)) { alert("Escalar inválido."); return; }
-                    detMatrix[rowMul] = detMatrix[rowMul].map(val => val * scalar);
-                    operationText = `${formatNumberForLatexDet(scalar)} F_{${rowMul+1}} \\rightarrow F_{${rowMul+1}}`;
-                    factorChange = scalar;
-                    break;
-                case 'add':
-                    const targetR = parseInt(document.getElementById('targetRow_det').value);
-                    const scalarAdd = parseNumberInputDet(document.getElementById('addScalar_det').value);
-                    const sourceR = parseInt(document.getElementById('sourceRow_det').value);
-                    if (isNaN(scalarAdd)) { alert("Escalar inválido."); return; }
-                    if (targetR === sourceR) { alert("La fila fuente y destino no pueden ser la misma para esta operación si k != 0 (o trivial)."); return; }
-                    
-                    detMatrix[targetR] = detMatrix[targetR].map((val, col) => val + scalarAdd * detMatrix[sourceR][col]);
-                    let scalarFormatted = formatNumberForLatexDet(scalarAdd);
-                    if (scalarAdd < 0 && !scalarFormatted.startsWith("(") && scalarFormatted.includes("-")) scalarFormatted = `(${scalarFormatted})`;
-                    operationText = `F_{${targetR+1}} + ${scalarFormatted} F_{${sourceR+1}} \\rightarrow F_{${targetR+1}}`;
-                    factorChange = 1; 
-                    break;
+                else if (type === 'swap') {
+                    const row1 = parseInt(document.getElementById('row1').value);
+                    const row2 = parseInt(document.getElementById('row2').value);
+                    [this.matrix[row1], this.matrix[row2]] = [this.matrix[row2], this.matrix[row1]];
+                    this.history.push(`F_{${row1 + 1}} \\leftrightarrow F_{${row2 + 1}}`);
                 }
 
-                if (factorChange === 0) { 
-                    detOverallFactor = 0; 
-                } else {
-                    detOverallFactor /= factorChange;
-                }
+                this.steps.push(JSON.parse(JSON.stringify(this.matrix)));
+                this.updateUI();
+            },
 
-                detHistory.push({
-                    matrixStateBefore: matrixBeforeOp,
-                    matrixStateAfter: JSON.parse(JSON.stringify(detMatrix)), 
-                    operationText: operationText,
-                    factorChange: factorChange, 
-                    overallFactor: detOverallFactor 
-                });
-
-                renderDeterminantMatrix(); 
-                updateDetLatexProcessDisplay(); 
-                document.getElementById('undoDetButton').disabled = false;
-                document.getElementById('finalDeterminantResult').style.display = 'none'; 
-            } catch (error) {
-                console.error("Error applying operation:", error);
-                alert("Error al aplicar la operación: " + error.message);
-            }
-        }
-
-        function undoLastDetOperation() {
-            if (detHistory.length > 0) {
-                const lastStep = detHistory.pop();
-                detMatrix = JSON.parse(JSON.stringify(lastStep.matrixStateBefore)); 
-                
-                if (detHistory.length > 0) {
-                    detOverallFactor = detHistory[detHistory.length-1].overallFactor;
-                } else {
-                    detOverallFactor = 1; 
-                }
-
-                renderDeterminantMatrix();
-                updateDetLatexProcessDisplay();
-                document.getElementById('finalDeterminantResult').style.display = 'none';
-            }
-            document.getElementById('undoDetButton').disabled = detHistory.length === 0;
-        }
-
-        function calculateFinalDeterminant() {
-            const detOfCurrentMatrix = calculateRecursiveDeterminant(detMatrix);
-            const finalDeterminantValue = detOverallFactor * detOfCurrentMatrix;
-
-            const resultDisplay = document.getElementById('finalDeterminantResult');
-            resultDisplay.textContent = `Determinante Final = ${formatNumberForLatexDet(finalDeterminantValue)}`;
-            resultDisplay.style.display = 'block';
-            
-            updateDetLatexProcessDisplay({ value: finalDeterminantValue, detOfCurrentMatrix: detOfCurrentMatrix });
-        }
-
-        // --- FIN CÓDIGO DETERMINANTES ---
-
-
-        // --- FUNCIONES PARA SUMA DE MATRICES (MODIFICADO PARA FRACCIONES) ---
-        function generateMatrixInputsSum() {
-            const rows = parseInt(document.getElementById('rowsSum').value);
-            const cols = parseInt(document.getElementById('colsSum').value);
-            let inputsHTML = `<div class="row"><div class="col-md-6"><h3>Matriz A</h3><div class="matrix-container" style="display: grid; grid-template-columns: repeat(${cols}, auto); gap: 5px;">`;
-            for (let i = 0; i < rows; i++) {
-                for (let j = 0; j < cols; j++) {
-                    // MODIFICADO: type="text" y clase matrix-entry-cell
-                    inputsHTML += `<input type="text" class="form-control text-center matrix-entry-cell" id="matrixA-${i}-${j}" placeholder="A[${i+1},${j+1}]" value="${Math.floor(Math.random()*10)}">`;
+            undo() {
+                if (this.steps.length > 1) {
+                    this.steps.pop();
+                    this.matrix = JSON.parse(JSON.stringify(this.steps[this.steps.length - 1]));
+                    this.history.pop();
+                    this.updateUI();
                 }
             }
-            inputsHTML += `</div></div><div class="col-md-6"><h3>Matriz B</h3><div class="matrix-container" style="display: grid; grid-template-columns: repeat(${cols}, auto); gap: 5px;">`;
-            for (let i = 0; i < rows; i++) {
-                for (let j = 0; j < cols; j++) {
-                    // MODIFICADO: type="text" y clase matrix-entry-cell
-                    inputsHTML += `<input type="text" class="form-control text-center matrix-entry-cell" id="matrixB-${i}-${j}" placeholder="B[${i+1},${j+1}]" value="${Math.floor(Math.random()*10)}">`;
-                }
-            }
-            inputsHTML += "</div></div></div>";
-            document.getElementById('matrix-inputs-sum').innerHTML = inputsHTML;
-        }
+        };
 
-        function calculateSum() {
-            const rows = parseInt(document.getElementById('rowsSum').value);
-            const cols = parseInt(document.getElementById('colsSum').value);
-            // MODIFICADO: parsear escalares como fracciones
-            const scalarA_val = app.parseFraction(document.getElementById('scalarA').value);
-            const scalarB_val = app.parseFraction(document.getElementById('scalarB').value);
-            
-            let matrixA = [], matrixB = [], scaledMatrixA = [], scaledMatrixB = [], sumMatrix = [];
-
-            for (let i = 0; i < rows; i++) {
-                matrixA[i] = []; matrixB[i] = []; scaledMatrixA[i] = []; scaledMatrixB[i] = []; sumMatrix[i] = [];
-                for (let j = 0; j < cols; j++) {
-                    // MODIFICADO: parsear elementos como fracciones
-                    matrixA[i][j] = app.parseFraction(document.getElementById(`matrixA-${i}-${j}`).value);
-                    matrixB[i][j] = app.parseFraction(document.getElementById(`matrixB-${i}-${j}`).value);
-                    
-                    // MODIFICADO: usar multiplicación de fracciones
-                    scaledMatrixA[i][j] = app.multiplyFractions(matrixA[i][j], scalarA_val);
-                    scaledMatrixB[i][j] = app.multiplyFractions(matrixB[i][j], scalarB_val);
-                    
-                    // MODIFICADO: usar suma de fracciones
-                    sumMatrix[i][j] = app.addFractions(scaledMatrixA[i][j], scaledMatrixB[i][j]);
-                }
-            }
-            const latexOutput = `\\begin{align*}
-                A &= ${matrixToLatexGen(matrixA)}, \\quad B = ${matrixToLatexGen(matrixB)} \\\\
-                ${app.formatFractionForLatex(scalarA_val)}A &= ${matrixToLatexGen(scaledMatrixA)}, \\quad ${app.formatFractionForLatex(scalarB_val)}B = ${matrixToLatexGen(scaledMatrixB)} \\\\
-                ${app.formatFractionForLatex(scalarA_val)}A + ${app.formatFractionForLatex(scalarB_val)}B &= ${matrixToLatexGen(sumMatrix)}
-            \\end{align*}`;
-            document.getElementById('matrix-sum-result-latex').innerHTML = latexOutput;
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, "matrix-sum-result-latex"]);
-        }
-        
-        // --- FUNCIONES PARA PRODUCTO DE MATRICES (MODIFICADO PARA FRACCIONES) ---
-        function generateMatrixInputsProd() {
-            const rowsA = parseInt(document.getElementById('rowsAProd').value);
-            const colsA = parseInt(document.getElementById('colsAProd').value);
-            const colsB = parseInt(document.getElementById('colsBProd').value);
-            document.getElementById('rowsBProd').value = colsA; 
-
-            let inputsHTML = `<div class="row"><div class="col-md-6"><h3>Matriz A (${rowsA}x${colsA})</h3><div class="matrix-container" style="display: grid; grid-template-columns: repeat(${colsA}, auto); gap: 5px;">`;
-            for (let i = 0; i < rowsA; i++) {
-                for (let j = 0; j < colsA; j++) {
-                    // MODIFICADO: type="text" y clase matrix-entry-cell
-                    inputsHTML += `<input type="text" class="form-control text-center matrix-entry-cell" id="matrixAProd-${i}-${j}" placeholder="A[${i+1},${j+1}]" value="${Math.floor(Math.random()*5)}">`;
-                }
-            }
-            inputsHTML += `</div></div><div class="col-md-6"><h3>Matriz B (${colsA}x${colsB})</h3><div class="matrix-container" style="display: grid; grid-template-columns: repeat(${colsB}, auto); gap: 5px;">`;
-            for (let i = 0; i < colsA; i++) { 
-                for (let j = 0; j < colsB; j++) {
-                    // MODIFICADO: type="text" y clase matrix-entry-cell
-                    inputsHTML += `<input type="text" class="form-control text-center matrix-entry-cell" id="matrixBProd-${i}-${j}" placeholder="B[${i+1},${j+1}]" value="${Math.floor(Math.random()*5)}">`;
-                }
-            }
-            inputsHTML += "</div></div></div>";
-            document.getElementById('matrix-inputs-prod').innerHTML = inputsHTML;
-        }
-
-        function calculateProduct() {
-            const rowsA = parseInt(document.getElementById('rowsAProd').value);
-            const colsA = parseInt(document.getElementById('colsAProd').value);
-            const rowsB = colsA; 
-            const colsB = parseInt(document.getElementById('colsBProd').value);
-            let matrixA = [], matrixB = [];
-            // MODIFICADO: Inicializar productMatrix con fracciones cero
-            let productMatrix = Array.from({ length: rowsA }, () => Array(colsB).fill(null).map(() => app.Fraction(0, 1)));
-
-            for (let i = 0; i < rowsA; i++) {
-                matrixA[i] = [];
-                for (let j = 0; j < colsA; j++) matrixA[i][j] = app.parseFraction(document.getElementById(`matrixAProd-${i}-${j}`).value);
-            }
-            for (let i = 0; i < rowsB; i++) {
-                matrixB[i] = [];
-                for (let j = 0; j < colsB; j++) matrixB[i][j] = app.parseFraction(document.getElementById(`matrixBProd-${i}-${j}`).value);
-            }
-
-            for (let i = 0; i < rowsA; i++) {
-                for (let j = 0; j < colsB; j++) {
-                    for (let k = 0; k < colsA; k++) {
-                        // MODIFICADO: usar suma y producto de fracciones
-                        const term = app.multiplyFractions(matrixA[i][k], matrixB[k][j]);
-                        productMatrix[i][j] = app.addFractions(productMatrix[i][j], term);
-                    }
-                }
-            }
-            
-            let latexOutput = `\\begin{align*}\\
-                A &= ${matrixToLatexGen(matrixA)} \\\\
-                B &= ${matrixToLatexGen(matrixB)} \\\\
-                A \\times B &= ${matrixToLatexGen(productMatrix)}
-            \\end{align*}`;
-            
-            if (rowsA <= 3 && colsB <= 3 && colsA <=3) { 
-                for (let i = 0; i < rowsA; i++) {
-                    for (let j = 0; j < colsB; j++) {
-                        let cellCalc = `\\begin{equation*} (A \\times B)_{${i+1},${j+1}} = `;
-                        for (let k = 0; k < colsA; k++) {
-                            // MODIFICADO: usar app.formatFractionForLatex
-                            cellCalc += `${app.formatFractionForLatex(matrixA[i][k])} \\cdot ${app.formatFractionForLatex(matrixB[k][j])}`;
-                            if (k < colsA - 1) cellCalc += " + ";
-                        }
-                        cellCalc += ` = ${app.formatFractionForLatex(productMatrix[i][j])} \\end{equation*}`;
-                        latexOutput += cellCalc;
-                        latexOutput += "";
-                    }
-                }
-            }
-                
-            document.getElementById('matrix-product-result-latex').innerHTML = latexOutput;
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, "matrix-product-result-latex"]);
-        }
-
-        // --- FUNCIONES PARA POTENCIA DE MATRICES (MODIFICADO PARA FRACCIONES) ---
-        function generateMatrixInputsPow() {
-            const size = parseInt(document.getElementById('sizePow').value);
-            let inputsHTML = `<h3>Matriz (${size}x${size})</h3><div class="matrix-container" style="display: grid; grid-template-columns: repeat(${size}, auto); gap: 5px; max-width: ${size*70}px; margin:auto;">`; // Aumentado max-width
-            for (let i = 0; i < size; i++) {
-                for (let j = 0; j < size; j++) {
-                     // MODIFICADO: type="text" y clase matrix-entry-cell
-                    inputsHTML += `<input type="text" class="form-control text-center matrix-entry-cell" id="matrixPow-${i}-${j}" placeholder="M[${i+1},${j+1}]" value="${Math.floor(Math.random()*3)}">`;
-                }
-            }
-            inputsHTML += "</div>";
-            document.getElementById('matrix-inputs-pow').innerHTML = inputsHTML;
-        }
-        
-        // MODIFICADO: para operar con fracciones
-        function multiplyMatricesGen(A_frac, B_frac) {
-            // MODIFICADO: Inicializar C con fracciones cero
-            let C_frac = Array(A_frac.length).fill(0).map(() => Array(B_frac[0].length).fill(null).map(() => app.Fraction(0, 1)));
-            for (let i = 0; i < A_frac.length; i++) {
-                for (let j = 0; j < B_frac[0].length; j++) {
-                    for (let k = 0; k < B_frac.length; k++) {
-                        const term = app.multiplyFractions(A_frac[i][k], B_frac[k][j]);
-                        C_frac[i][j] = app.addFractions(C_frac[i][j], term);
-                    }
-                }
-            }
-            return C_frac;
-        }
-        
-        // MODIFICADO: para operar con fracciones
-        function matrixPower(matrix_frac, p) {
-            if (p === 0) { 
-                // MODIFICADO: Matriz identidad con fracciones
-                return matrix_frac.map((row, i) => row.map((_, j) => (i === j ? app.Fraction(1, 1) : app.Fraction(0, 1))));
-            }
-            if (p === 1) return matrix_frac;
-            let result_frac = matrix_frac;
-            for (let k = 1; k < p; k++) result_frac = multiplyMatricesGen(result_frac, matrix_frac); // Usa la versión modificada
-            return result_frac;
-        }
-        
-        function calculatePower() {
-            const size = parseInt(document.getElementById('sizePow').value);
-            const power = parseInt(document.getElementById('powerPow').value);
-            let matrix_frac = [];
-            for (let i = 0; i < size; i++) {
-                matrix_frac[i] = [];
-                // MODIFICADO: parsear elementos como fracciones
-                for (let j = 0; j < size; j++) matrix_frac[i][j] = app.parseFraction(document.getElementById(`matrixPow-${i}-${j}`).value);
-            }
-            let resultMatrix_frac = matrixPower(matrix_frac, power); // Usa la versión modificada
-            
-            let latexOutput = `\\begin{align*}\\
-                M &= ${matrixToLatexGen(matrix_frac)} \\\\
-                M^{${power}} &= ${matrixToLatexGen(resultMatrix_frac)}
-            \\end{align*}`;
-            
-            if (power > 1 && power <= 4) {
-                latexOutput += "\\begin{equation*}\\text{Cálculo paso a paso:}\\end{equation*}";
-                let intermediate_frac = matrix_frac;
-                latexOutput += `\\begin{equation*} M^1 = ${matrixToLatexGen(matrix_frac)} \\end{equation*}`;
-                for (let p_step = 2; p_step <= power; p_step++) {
-                    intermediate_frac = multiplyMatricesGen(intermediate_frac, matrix_frac); // Usa la versión modificada
-                    latexOutput += `\\begin{equation*} M^${p_step} = ${matrixToLatexGen(intermediate_frac)} \\end{equation*}`;
-                    if (p_step < power) {
-                        latexOutput += "\\";
-                    }
-                }
-            }
-            
-            document.getElementById('matrix-pow-result-latex').innerHTML = latexOutput;
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, "matrix-pow-result-latex"]);
-        }
-
-        // Función genérica para convertir matriz a LaTeX (usada por Suma, Producto, Potencia)
-        // MODIFICADO: ahora usa app.formatFractionForLatex
-        function matrixToLatexGen(matrix) {
-            if (!matrix || matrix.length === 0) return '\\begin{pmatrix} \\end{pmatrix}';
-            return `\\begin{pmatrix} ${matrix.map(row => row.map(val => app.formatFractionForLatex(val)).join(' & ')).join(' \\\\ ')} \\end{pmatrix}`;
-        }
-
-        // Inicialización al cargar la página
+        // Inicialización
         document.addEventListener('DOMContentLoaded', () => {
             MathJax.Hub.Config({
-                tex2jax: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] },
-                CommonHTML: { linebreaks: { automatic: true } },
-                "HTML-CSS": { linebreaks: { automatic: true } },
-                SVG: { linebreaks: { automatic: true } },
-                TeX: {Macros: {bm: "\\boldsymbol"}} 
+                tex2jax: {
+                    inlineMath: [['$', '$']],
+                    displayMath: [['$$', '$$']]
+                }
             });
-            app.loadTool('introduccion1'); 
-        });
-    </script>
 
-    <script type="module">
-        import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js"
-        Chatbot.init({
-            chatflowid: "96460740-d404-417e-8c57-09930daa8ec6",
-            apiHost: "https://flowiseai-railway-production-9c6d7.up.railway.app",
-        })
+            // Generar matrices iniciales
+            matrices.generateInputs();
+
+            // Inicializar Gauss-Jordan
+            gauss.renderInputs();
+            gauss.renderOperationInputs();
+
+            // Event listeners
+            document.getElementById('operationType')?.addEventListener('change', () => gauss.renderOperationInputs());
+
+            // Matrix dimension change handlers
+            ['A', 'B'].forEach((matrix, index) => {
+                const nextMatrix = ['B', 'C'][index];
+                document.getElementById(`cols${matrix}`).addEventListener('change', () => {
+                    document.getElementById(`rows${nextMatrix}`).value = 
+                        document.getElementById(`cols${matrix}`).value;
+                    matrices.generateInputs();
+                });
+            });
+
+            ['A', 'B', 'C'].forEach(matrix => {
+                ['rows', 'cols'].forEach(dim => {
+                    document.getElementById(`${dim}${matrix}`).addEventListener('change', () => matrices.generateInputs());
+                });
+            });
+        });
     </script>
 </body>
 </html>
